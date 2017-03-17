@@ -22,20 +22,20 @@ class Lantern
     this.fade_white()
 
   fade_white: () ->
-    @alpha -= 0.03
+    @alpha -= 0.003
     if @alpha > 0
       window.setTimeout () =>
         this.fade_white()
-      , 100
+      , 10
     else
       @alpha = 0
 
   fade_color: () ->
-    @alpha += 0.1
+    @alpha += 0.01
     if @alpha < 1
       window.setTimeout () =>
         this.fade_color()
-      , 100
+      , 10
     else
       @alpha = 1
       window.setTimeout () =>
@@ -64,7 +64,7 @@ $(document).ready(() ->
   globs.lantern_blue.src = "lantern_blue.svg"
   globs.lantern_blue.onload = () ->
     frame()
-    move_person()
+    #move_person()
 
   globs.bg = img
 
@@ -89,11 +89,11 @@ lanterns = [
   new Lantern(x: 640, y: 280)
 ]
 
+window.onmousemove = (event) ->
+  globs.i = event.clientX
+
 move_person = () ->
   globs.i += 1
-  for lantern, i in lanterns
-    if Math.abs(lantern.x - globs.i) < 10
-      lantern.trigger()
   window.setTimeout(move_person, 50)
 
 frame = () ->
@@ -101,5 +101,8 @@ frame = () ->
   globs.ctx.fillRect(globs.i, 276, 10, 10)
   lantern.draw() for lantern in lanterns
 
+  for lantern, i in lanterns
+    if Math.abs(lantern.x - globs.i) < 10
+      lantern.trigger()
   window.setTimeout(frame, 10)
 
