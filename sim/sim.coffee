@@ -3,14 +3,15 @@ globs = window.globs
 
 class Lantern
   constructor: (options) ->
-    {@x, @y, @alpha = 0} = options
+    {@ctx, @x, @y, @alpha = 0, @radius = 40} = options
+    @update_gradient()
 
   draw: () ->
-    globs.ctx.globalAlpha = @alpha
-    globs.ctx.drawImage(globs.lantern_blue, @x, @y)
-    globs.ctx.globalAlpha = 1-@alpha
-    globs.ctx.drawImage(globs.lantern_white, @x, @y)
-    globs.ctx.globalAlpha = 1
+    @ctx.save()
+    @ctx.translate(@x - @radius, @y - @radius)
+    @ctx.fillStyle = @gradient
+    @ctx.fillRect(0, 0, 100, 100)
+    @ctx.restore()
   trigger: () ->
     if not @triggered
       @triggered = true
@@ -18,11 +19,18 @@ class Lantern
         @triggered = false
       , 2000
       this.fade_color()
+
   reset: () ->
     this.fade_white()
 
+  update_gradient: () ->
+    @gradient = @ctx.createRadialGradient(50, 50, @radius, 50, 50, 0)
+    @gradient.addColorStop(0, 'rgba(' + Math.round((1-@alpha) * 255) + ', ' + Math.round((1-@alpha) * 255) + ', 255, 0)')
+    @gradient.addColorStop(1, 'rgba(' + Math.round((1-@alpha) * 255) + ', ' + Math.round((1-@alpha) * 255) + ', 255, 0.50)')
+
   fade_white: () ->
     @alpha -= 0.003
+    this.update_gradient()
     if @alpha > 0
       window.setTimeout () =>
         this.fade_white()
@@ -32,6 +40,7 @@ class Lantern
 
   fade_color: () ->
     @alpha += 0.01
+    this.update_gradient()
     if @alpha < 1
       window.setTimeout () =>
         this.fade_color()
@@ -41,7 +50,18 @@ class Lantern
       window.setTimeout () =>
         this.reset()
       , 5000
-    
+
+lantern_pos = [
+  [40, 280]
+  [140, 250]
+  [240, 280]
+  [340, 250]
+  [440, 280]
+  [540, 250]
+  [640, 280]
+]
+
+lanterns = []
 
 $(document).ready(() ->
   canvas = $('#canvas')[0]
@@ -57,37 +77,15 @@ $(document).ready(() ->
     globs.ctx.drawImage(img, 0, 0)
   img.src = "background.svg"
 
-  globs.lantern_white = new Image()
-  globs.lantern_white.src = "lantern_white.svg"
-
-  globs.lantern_blue = new Image()
-  globs.lantern_blue.src = "lantern_blue.svg"
-  globs.lantern_blue.onload = () ->
-    frame()
-    #move_person()
-
   globs.bg = img
 
-  globs.ctx.fillStyle = 'green'
-) 
+  for pos in lantern_pos
+    lanterns.push(new Lantern(ctx: globs.ctx, x: pos[0], y: pos[1]))
+
+  frame()
+)
 
 globs.i=0
-
-#lanterns = [
-#  new Lantern(x: 40, y: 400)
-#  new Lantern(x: 140, y: 420)
-#  new Lantern(x: 240, y: 440)
-#]
-
-lanterns = [
-  new Lantern(x: 40, y: 280)
-  new Lantern(x: 140, y: 250)
-  new Lantern(x: 240, y: 280)
-  new Lantern(x: 340, y: 250)
-  new Lantern(x: 440, y: 280)
-  new Lantern(x: 540, y: 250)
-  new Lantern(x: 640, y: 280)
-]
 
 window.onmousemove = (event) ->
   globs.i = event.clientX
