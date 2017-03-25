@@ -63,7 +63,7 @@ lantern_pos = [
 
 lanterns = []
 
-$(document).ready(() ->
+$(document).ready () ->
   canvas = $('#canvas')[0]
   canvas.width = 1600
   canvas.height = 1200
@@ -83,9 +83,8 @@ $(document).ready(() ->
     lanterns.push(new Lantern(ctx: globs.ctx, x: pos[0], y: pos[1]))
 
   frame()
-)
 
-globs.i=0
+globs.i = 0
 
 window.onmousemove = (event) ->
   globs.i = event.clientX
