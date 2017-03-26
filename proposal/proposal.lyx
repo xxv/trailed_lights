@@ -325,11 +325,14 @@ Installation Plan
 
 \begin_layout Standard
 The spacing of the lanterns will be limited by wifi reception.
+ This is presumed to be about 60m end-to-end total, but more empirical testing
+ will need to happen to get an exact figure.
 \end_layout
 
 \begin_layout Standard
-Each lantern will be placed along a path spaced 5 meters apart, alternating
- sides of the path.
+Each lantern will be placed along a path spaced 5 meters apart (this figure
+ can be adjusted according to trail lighting needs), alternating sides of
+ the path.
  Lanterns must have motion-detector visibility to the path.
  The base station will be placed off the path in the center of the installation
  (around 30m from the first lantern).
@@ -367,6 +370,11 @@ As the lanterns are functional trail lighting, there is a risk that they
 \end_layout
 
 \begin_layout Standard
+Additionally, there is a known risk that the ambient light sensing won't
+ effectively turn off the lanterns in the day to save power.
+\end_layout
+
+\begin_layout Standard
 Two spare lanterns will be fabricated in case a lantern needs to be replaced
  on-site.
 \end_layout
@@ -384,8 +392,8 @@ Project Timeline
 
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
-Mar.-May: Design, software development, prototyping, electronics development,
- interaction sketching, initial testing
+Mar.-May: Design, software development, acquisition of components, jar etching,
+ prototyping, electronics development, interaction sketching, initial testing
 \end_layout
 
 \begin_layout Labeling
@@ -421,13 +429,14 @@ Project Budget
 \begin_layout Standard
 The following table covers the costs (minus shipping) of all the parts for
  this project.
- 
+ This project can scale up/down according to budget, but a minimum of 10
+ lanterns is recommended.
 \end_layout
 
 \begin_layout Standard
-With the award of this grant, I will be able to cover almost 90% of the
- total cost.
- The remainder of any costs will come out-of- pocket.
+With the award of this grant, I will be able to cover about 80% of the total
+ cost.
+ The remainder of any costs will come out-of-pocket.
 \end_layout
 
 \begin_layout Standard
@@ -439,7 +448,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="13" columns="5">
+<lyxtabular version="3" rows="14" columns="5">
 <features tabularvalignment="middle">
 <column alignment="center" valignment="top">
 <column alignment="right" valignment="top">
@@ -1022,6 +1031,53 @@ $50.00
 </cell>
 </row>
 <row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Etching solution
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$40.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$40.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -1057,7 +1113,7 @@ Total
 \begin_layout Plain Layout
 
 \series bold
-$568.10
+$608.10
 \end_layout
 
 \end_inset
@@ -1171,7 +1227,7 @@ Personal Funds
 \begin_inset Text
 
 \begin_layout Plain Layout
-$68.10
+$108.10
 \end_layout
 
 \end_inset
@@ -1191,7 +1247,7 @@ Total
 \begin_inset Text
 
 \begin_layout Plain Layout
-$568.10
+$608.10
 \end_layout
 
 \end_inset
