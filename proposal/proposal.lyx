@@ -1,0 +1,1253 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "utopia" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 3cm
+\topmargin 3cm
+\rightmargin 3cm
+\bottommargin 3cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Trailed Lights
+\end_layout
+
+\begin_layout Part*
+Experience Design
+\end_layout
+
+\begin_layout Standard
+Trail lights are a key fixture to the landscape of Firefly, providing a
+ path through the darkness on the way to pools of light.
+ Trail lights are a reliable, passive friend; they're simple and constant.
+ But what if they could interact with their users?
+\end_layout
+
+\begin_layout Standard
+Twelve custom lanterns are placed along a dark, longish path through the
+ woods.
+ As a person walks along the path, the white lantern detects motion, briefly
+ gets brighter, and chooses a color and fade animation for that person.
+ As the person walks along the path they notice that all the other lanterns
+ do the same: starting out white and turning whatever color the first lantern
+ chose.
+ This continues until the person passes along the entire path.
+ The lanterns slowly fade back to white once the person has passed.
+\end_layout
+
+\begin_layout Standard
+A person proceeding along the path going the other direction has a parallel
+ experience: they are given a distinct color and animation to guide them
+ along the path as they proceed.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename colored_light_overview.png
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+White lights fade to a color
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+When two people going opposite directions meet (or pass), so do their colors
+ and animations: they blend to become one color, which then follows both
+ parties along the remainder of their respective journeys.
+\end_layout
+
+\begin_layout Standard
+To save power, the lanterns automatically turn themselves off when it's
+ light out by monitoring ambient light levels.
+\end_layout
+
+\begin_layout Part*
+Technical Design
+\end_layout
+
+\begin_layout Standard
+The system consists of a number of custom-made lanterns and an off-the-shelf
+ wifi base station running a standard Linux distribution.
+ The lanterns and base station communicate by way of an MQTT server running
+ on the base station, allowing lanterns to post messages that are broadcast
+ to all of the other lanterns.
+ The base station is not connected to the Internet, but instead runs a local
+ network and functions as a hub connecting all the lanterns.
+\end_layout
+
+\begin_layout Section*
+Lanterns
+\end_layout
+
+\begin_layout Standard
+Twelve lanterns will be fabricated (plus two spares).
+ Each lantern consists of the following parts:
+\end_layout
+
+\begin_layout Itemize
+ESP8266 module—a programmable micro-controller with wifi (using an Adafruit
+ Feather Huzzah board to simplify things)
+\end_layout
+
+\begin_layout Itemize
+PIR motion detector
+\end_layout
+
+\begin_layout Itemize
+APA102 RGB LED
+\end_layout
+
+\begin_layout Itemize
+lithium-ion battery (≈1200mAh)
+\end_layout
+
+\begin_layout Itemize
+photo-resistor
+\end_layout
+
+\begin_layout Itemize
+Custom 3D printed lid insert to house all electronics
+\end_layout
+
+\begin_layout Itemize
+misc.
+ passive components
+\end_layout
+
+\begin_layout Itemize
+glass Ball jar with frosted interior as a waterproof container and light
+ diffuser
+\end_layout
+
+\begin_layout Standard
+Each lantern will connect to the base station via Wifi which can be configured
+ using a mobile phone.
+\end_layout
+
+\begin_layout Subsection*
+Animation patterns
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement O
+overhang 0in
+width "33col%"
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename animations.eps
+	width 33col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Animation patterns
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In addition to choosing a color, the lanterns will choose an animation pattern
+ to transition between white and that color.
+ This animation becomes part of the identity of the light that follows the
+ participant.
+ For example, a lantern could smoothly fade from white to green or a different
+ lantern could stutter a few times with a burst of blue before finally settling
+ on being consistently blue.
+ There will be a predetermined library of animations as well as parameters
+ to allow for a large number of light personalities.
+\end_layout
+
+\begin_layout Subsection*
+Power management
+\end_layout
+
+\begin_layout Standard
+Each lantern has a photo-resistor which monitors external light levels to
+ automatically power off the lantern during the day.
+\end_layout
+
+\begin_layout Standard
+Lanterns are designed to use minimal power in their quiescent (light on,
+ non-interacting) state.
+ The interactivity and connectivity is only powered on when motion is detected.
+ If connectivity fails, the lantern will fall back to being a simple white
+ trail light.
+\end_layout
+
+\begin_layout Standard
+Lantern batteries can be recharged via USB or simply disconnected/swapped.
+ The lantern is designed to last a minimum of 9 hours per day for 7 days
+ on a single charge.
+ Battery size will be adjusted based on measured power consumption once
+ the electronics are finalized.
+\end_layout
+
+\begin_layout Section*
+Base Station
+\end_layout
+
+\begin_layout Standard
+There will be a wifi base station running OpenWRT, a disconnected-from-the-Inter
+net local network, and a simple MQTT server to coordinate all the lanterns.
+ The base station will be powered by a 12VDC sealed lead acid battery (a
+ big-ass battery) and appropriate DC to DC converter.
+ All of these will be put inside a plastic sealed-lid container for weatherproof
+ing.
+\end_layout
+
+\begin_layout Standard
+Each lantern will be programmed with the same firmware and will be configured
+ to connect to the base station.
+ The ordering of the lanterns is taught by sending a training command to
+ the group and then recording the orders in which they respond.
+ Each lantern uses its Wifi MAC address as a unique identifier on the MQTT
+ bus.
+\end_layout
+
+\begin_layout Standard
+The lanterns will each be configurable via a smartphone on-site if needed,
+ but will be pre-configured to connect to the base station before bringing
+ them to Firefly.
+\end_layout
+
+\begin_layout Part*
+Installation Plan
+\end_layout
+
+\begin_layout Standard
+The spacing of the lanterns will be limited by wifi reception.
+\end_layout
+
+\begin_layout Standard
+Each lantern will be placed along a path spaced 5 meters apart, alternating
+ sides of the path.
+ Lanterns must have motion-detector visibility to the path.
+ The base station will be placed off the path in the center of the installation
+ (around 30m from the first lantern).
+\end_layout
+
+\begin_layout Standard
+Lanterns and base station will be transported in boxes hand-carried to the
+ installation site.
+\end_layout
+
+\begin_layout Standard
+Installation will occur during early arrival to ensure that the path is
+ lit.
+\end_layout
+
+\begin_layout Part*
+Risk Analysis
+\end_layout
+
+\begin_layout Standard
+The lanterns themselves will have all their electronics sealed in a glass
+ jar to simplify weatherproofing.
+ The main risk associated with this project is that the jar is crushed or
+ otherwise broken.
+ See the LNT plan for that contingency.
+\end_layout
+
+\begin_layout Standard
+As the lanterns are functional trail lighting, there is a risk that they
+ will fail to be effective trail lighting (mostly due to low batteries).
+ Extra batteries will be brought and the lanterns can be recharged during
+ the day during the course of the event.
+ In the event of complete failure of a lantern(s), DPW can be contacted
+ to secure replacement trail lighting.
+\end_layout
+
+\begin_layout Standard
+Two spare lanterns will be fabricated in case a lantern needs to be replaced
+ on-site.
+\end_layout
+
+\begin_layout Standard
+Individual lanterns will be designed to function as plain-old trail lights
+ in the event of a loss of connectivity with the base station.
+ Motion-detected color change may still occur in this failure mode, but
+ lanterns will not be able to communicate amongst themselves.
+\end_layout
+
+\begin_layout Part*
+Project Timeline
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Mar.-May: Design, software development, prototyping, electronics development,
+ interaction sketching, initial testing
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+May-June: Prototype refinement, fabrication of final lanterns, fabrication
+ of base station setup, testing of overall system
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+July
+\begin_inset space ~
+\end_inset
+
+4-9: Firefly! 
+\backslash
+o/ (installation during early arrival)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+July
+\begin_inset space ~
+\end_inset
+
+24: Provide grant documentation by this date
+\end_layout
+
+\begin_layout Part*
+Project Budget
+\end_layout
+
+\begin_layout Standard
+The following table covers the costs (minus shipping) of all the parts for
+ this project.
+ 
+\end_layout
+
+\begin_layout Standard
+With the award of this grant, I will be able to cover almost 90% of the
+ total cost.
+ The remainder of any costs will come out-of- pocket.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="13" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Item
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Price
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Quantity
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Sub-total
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Notes
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Adafruit Feather Huzzah
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$16.95
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$237.30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+APA102 LED
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$0.10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$1.40
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PIR motion detector
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$5.90
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$82.60
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Lipo battery
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$9.95
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$139.30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+photo-resistor
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$0.75
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$10.50
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ball jar
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$1.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$14.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3D printed housing
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$1.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$14.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Misc.
+ passives
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$1.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$14.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Base station
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$0.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$0.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Have one
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Container for base station
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$5.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$5.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SLA battery
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$50.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$50.00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Total
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+$568.10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Project Expenses
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="right" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Source
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Amount
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Firefly Creativity Grant
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$500.00
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Personal Funds
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$68.10
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Total
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$568.10
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Funding Sources
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+Project Placement
+\end_layout
+
+\begin_layout Standard
+As this project is functional trail lighting, placement will be coordinated
+ with the trail lighting initiative.
+ This project will work best when placed along a long stretch of contiguous
+ trail with few other light or trail intersections around.
+ The newly-opened trail behind Axiom might be a good placement for this
+ project.
+\end_layout
+
+\begin_layout Part*
+LNT Plan
+\end_layout
+
+\begin_layout Standard
+The jars and base station will be collected at the end of the event.
+ Jars will be counted to ensure none are left behind.
+ In the unlikely event that a jar is crushed and/or shattered, pieces will
+ be placed in a plastic bag and brought out.
+\end_layout
+
+\end_body
+\end_document
