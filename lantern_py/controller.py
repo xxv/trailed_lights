@@ -87,17 +87,18 @@ class Controller():
         self.mqtt.subscribe(self.mqtt_config['topic'] + '/#')
         print("Connected")
     def on_message(self, client, userdata, message):
-        if message.topic == self.topic + '/motion':
+        parts=message.topic.split('/')
+        if not parts[0] == self.topic:
+            return
+        if parts[-1] == 'motion':
             id = message.payload.decode('utf-8')
             if self.learn_ids:
                 self.lanterns.append({'id': id})
                 print("Learned lantern {}".format(id))
             else:
                 self.trip_handler.on_motion(id)
-        else:
-            print("{m.topic} {m.payload}".format(m=message, u=userdata))
     def send_color(self, id, color):
-        self.mqtt.publish("{}/{}/color".format(self.topic, id), color) 
+        self.mqtt.publish("{}/{}/color".format(self.topic, id), color, retain=True)
     def loop(self):
         self.mqtt.loop_forever()
     def init(self):
