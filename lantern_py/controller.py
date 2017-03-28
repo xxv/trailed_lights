@@ -80,16 +80,21 @@ class Controller():
         self.mqtt.on_connect = self.on_connect
         self.mqtt.on_message = self.on_message
         self.topic = self.mqtt_config['topic']
-        self.trip_handler=TripHandler(self)
+        self.trip_handler = TripHandler(self)
 
     def connect(self):
         print("Connecting to {host}:{port}...".format(**self.mqtt_config))
         self.mqtt.connect(self.mqtt_config['host'], self.mqtt_config['port'])
+
     def on_connect(self, client, userdata, flags, rc):
         self.mqtt.subscribe(self.mqtt_config['topic'] + '/#')
+        self.mqtt.subscribe('controller/#')
         print("Connected")
+
     def on_message(self, client, userdata, message):
-        parts=message.topic.split('/')
+        parts = message.topic.split('/')
+        if parts[0] == 'controller':
+            return self.on_controller_message(client, userdata, message, parts)
         if not parts[0] == self.topic:
             return
         if parts[-1] == 'motion':
@@ -99,15 +104,27 @@ class Controller():
                 print("Learned lantern {}".format(id))
             else:
                 self.trip_handler.on_motion(id)
+
+    def on_controller_message(self, client, userdata, message, topic):
+        if len(topic) > 1:
+            if topic[1] == 'init':
+                self.init()
+            if topic[1] == 'done':
+                self.init_done()
+
     def send_color(self, id, color):
         self.mqtt.publish("{}/{}/color".format(self.topic, id), color, retain=True)
+
     def loop(self):
         self.mqtt.loop_forever()
+
     def init(self):
         self.lanterns = []
         self.learn_ids = True
+
     def init_done(self):
         self.learn_ids = False
+
     def get_lanterns(self):
         return self.lanterns
 
@@ -123,7 +140,7 @@ def main():
             i=raw_input('Lanterns> ')
         if i == 'init':
             controller.init()
-        elif i == 'initdone':
+        elif i == 'done':
             controller.init_done()
         elif i == 'list':
             for lantern in controller.get_lanterns():
