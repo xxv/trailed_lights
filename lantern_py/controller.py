@@ -89,11 +89,13 @@ class Controller():
 
     def connect(self):
         print("Connecting to {host}:{port}...".format(**self.mqtt_config))
+        self.mqtt.will_set('controller/status', 'offline', retain=True)
         self.mqtt.connect(self.mqtt_config['host'], self.mqtt_config['port'])
 
     def on_connect(self, client, userdata, flags, rc):
         self.mqtt.subscribe(self.mqtt_config['topic'] + '/#')
         self.mqtt.subscribe('controller/#')
+        self.mqtt.publish('controller/status', 'uninitialized', retain=True)
         print("Connected")
 
     def on_message(self, client, userdata, message):
@@ -107,6 +109,7 @@ class Controller():
             if self.learn_ids:
                 self.lanterns.append({'id': id})
                 print("Learned lantern {}".format(id))
+                self.mqtt.publish('controller/added', '{}'.format(id))
             else:
                 self.trip_handler.on_motion(id)
 
@@ -135,9 +138,12 @@ class Controller():
     def init(self):
         self.lanterns = []
         self.learn_ids = True
+        self.mqtt.publish('controller/status', 'learning', retain=True)
 
     def init_done(self):
         self.learn_ids = False
+        self.mqtt.publish('controller/status', 'ready', retain=True)
+        self.mqtt.publish('controller/lanterns', json.dumps(self.lanterns))
 
     def get_lanterns(self):
         return self.lanterns
