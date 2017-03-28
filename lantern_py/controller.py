@@ -4,6 +4,7 @@ import json
 import paho.mqtt.client as paho
 from threading import Thread
 import random
+import uuid
 import sys
 
 v3=sys.version_info[0] >= 3
@@ -51,19 +52,23 @@ class TripHandler():
         trip = { 'start_id': id,
                  'direction': direction,
                  'last_id': id,
+                 'uuid': uuid.uuid4(),
                  'next_id': self.get_next_id(id, direction),
                  'color': color }
         self.trips.append(trip)
         self.controller.send_color(id, color)
+        self.controller.send_trip_begin(trip['uuid'])
 
     def advance_trip(self, trip):
         trip['next_id'] = self.get_next_id(trip['next_id'], trip['direction'])
         if trip['next_id'] is None:
+            self.controller.send_trip_complete(trip['uuid'])
             print("Trip done!")
 
     def on_interior_motion(self, id):
         for trip in self.trips:
             if trip['next_id'] == id:
+                self.controller.send_trip_progress(trip['uuid'], id)
                 self.controller.send_color(id, trip['color'])
                 self.advance_trip(trip)
                 return True
@@ -114,6 +119,15 @@ class Controller():
 
     def send_color(self, id, color):
         self.mqtt.publish("{}/{}/color".format(self.topic, id), color, retain=True)
+
+    def send_trip_begin(self, id):
+        self.mqtt.publish('trip/{}/begin'.format(id))
+
+    def send_trip_progress(self, id, position):
+        self.mqtt.publish('trip/{}/progress'.format(id), position)
+
+    def send_trip_complete(self, id):
+        self.mqtt.publish('trip/{}/complete'.format(id))
 
     def loop(self):
         self.mqtt.loop_forever()
