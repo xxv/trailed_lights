@@ -115,10 +115,17 @@ class Controller():
 
     def on_controller_message(self, client, userdata, message, topic):
         if len(topic) > 1:
+            payload = message.payload.decode('utf-8')
             if topic[1] == 'init':
                 self.init()
-            if topic[1] == 'done':
+            elif topic[1] == 'done':
                 self.init_done()
+            elif topic[1] == 'learning':
+                if payload == '1':
+                    self.init()
+                elif payload == '0':
+                    self.init_done()
+
 
     def send_color(self, id, color):
         self.mqtt.publish("{}/{}/color".format(self.topic, id), color, retain=True)
