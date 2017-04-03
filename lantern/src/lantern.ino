@@ -57,12 +57,9 @@ void setup() {
   pinMode(0, OUTPUT);
   pinMode(MOTION_PIN, INPUT);
 
-  Serial.begin(115200);
-
   FastLED.addLeds<APA102, MOSI, SCK, BGR>(leds, NUM_LEDS);
   FastLED.showColor(CRGB::Black);
 
-  Serial.println("Connecting...");
   wifiManager.setAPCallback(configModeCallback);
 
   if (!wifiManager.autoConnect("Lantern")) {
@@ -77,7 +74,6 @@ void setup() {
   sprintf(lantern_id_status, "lantern/%s/status", device_id);
 
   randomSeed(micros());
-  Serial.println("Wifi Connected");
 
   FastLED.showColor(CRGB::Black);
   client.setServer(mqtt_host, mqtt_port);
@@ -105,12 +101,6 @@ void reconnect() {
       // Once connected, publish an announcement...
       client.publish(lantern_id_status, "online", 1);
       client.subscribe(lantern_id_color);
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
     }
   }
 }
