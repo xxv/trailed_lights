@@ -45,8 +45,10 @@ void configModeCallback(WiFiManager *myWiFiManager) {
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
+  std::string payload_str ((char *)payload, length);
+  payload_str.replace(0, 1, "0x");
   if (strcmp(lantern_id_color, topic) == 0) {
-    leds[0] = strtoul((char*)payload, nullptr, 16);
+    leds[0] = strtoul(payload_str.c_str(), nullptr, 16);
     FastLED.show();
   }
 }
@@ -86,7 +88,7 @@ void check_motion() {
   long now = millis();
   if (digitalRead(MOTION_PIN) && (last_motion == 0 || (now - last_motion) > RETRIGGER_DELAY)) {
     last_motion = now;
-    client.publish(mqtt_topic, "");
+    client.publish(lantern_id_motion, "");
     delay(500);
   }
 }
@@ -98,10 +100,10 @@ void reconnect() {
     String clientId = "lantern-";
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
-    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
-      Serial.println("connected");
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password,
+                  lantern_id_status, 0, 1, "offline")) {
       // Once connected, publish an announcement...
-      client.publish(lantern_id_status, "online");
+      client.publish(lantern_id_status, "online", 1);
       client.subscribe(lantern_id_color);
     } else {
       Serial.print("failed, rc=");
