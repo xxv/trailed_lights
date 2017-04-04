@@ -17,6 +17,7 @@ enum DeviceMode {
 };
 
 #define MOTION_PIN 13
+#define STATUS_LED 0
 #define NUM_LEDS 1
 // milliseconds
 #define RETRIGGER_DELAY 15000
@@ -54,7 +55,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 }
 
 void setup() {
-  pinMode(0, OUTPUT);
+  pinMode(STATUS_LED, OUTPUT);
+  digitalWrite(STATUS_LED, 1); // LED off
   pinMode(MOTION_PIN, INPUT);
 
   FastLED.addLeds<APA102, MOSI, SCK, BGR>(leds, NUM_LEDS);
