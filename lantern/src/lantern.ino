@@ -16,7 +16,7 @@ enum DeviceMode {
   wifi_setup
 };
 
-#define MOTION_PIN 13
+#define MOTION_PIN 4
 #define STATUS_LED 0
 #define NUM_LEDS 1
 // milliseconds
@@ -69,6 +69,11 @@ void setup() {
     delay(1000);
   }
 
+  if (device_mode == wifi_setup) {
+    device_mode = normal;
+    FastLED.showColor(CRGB::Black);
+  }
+
   WiFi.macAddress(mac);
   sprintf(device_id, "%02x%02x%02x%02x", mac[2], mac[3], mac[4], mac[5]);
   sprintf(lantern_id_color, "lantern/%s/color", device_id);
@@ -77,7 +82,6 @@ void setup() {
 
   randomSeed(micros());
 
-  FastLED.showColor(CRGB::Black);
   client.setServer(mqtt_host, mqtt_port);
   client.setCallback(mqtt_callback);
 }
