@@ -98,7 +98,7 @@ class Controller(MQTTBase):
     learn_lids = False
     lanterns = []
     def __init__(self, mqtt):
-        super(Controller, self).__init__(mqtt)
+        MQTTBase.__init__(self, mqtt)
         self.trip_handler = TripHandler(self)
 
     def on_connect(self, client, userdata, flags, conn_result):
@@ -166,7 +166,14 @@ class Controller(MQTTBase):
         return self.lanterns
 
 def main():
-    config = {'host': 'localhost', 'port': 1883}
+    if len(sys.argv) < 2:
+        print("Usage: {} config.json".format(sys.argv[0]))
+        sys.exit(1)
+
+    config_file_name = sys.argv[1]
+    config = None
+    with open(config_file_name) as config_file:
+        config = json.load(config_file)
     controller = Controller(config)
     controller.connect()
     Thread(target=controller.loop).start()

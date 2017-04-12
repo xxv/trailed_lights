@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 from threading import Thread
+import json
 import sys
 import paho.mqtt.client as paho
 from mqtt_base import MQTTBase
 
 class Lantern(MQTTBase):
     def __init__(self, lid, mqtt):
-        super(Lantern, self).__init__(mqtt)
+        MQTTBase.__init__(self, mqtt)
         self.lid = lid
     def on_connect(self, client, userdata, flags, conn_result):
         self.mqtt.subscribe("lantern/{}/#".format(self.lid))
@@ -31,18 +32,27 @@ class Lantern(MQTTBase):
     def trigger(self):
         self.mqtt.publish("lantern/{}/motion".format(self.lid), self.lid)
 
+def get_input():
+    if sys.version_info[0] >= 3:
+        i = input('')
+    else:
+        i = raw_input('')
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: {} ID".format(sys.argv[0]))
+    if len(sys.argv) < 3:
+        print("Usage: {} config.json ID".format(sys.argv[0]))
         sys.exit(1)
 
-    lid = sys.argv[1]
-    config = { 'host': 'localhost', 'port': 1883 }
+    config_file_name = sys.argv[1]
+    lid = sys.argv[2]
+    config = None
+    with open(config_file_name) as config_file:
+        config = json.load(config_file)
     lantern = Lantern(lid, config)
     lantern.connect()
     Thread(target=lantern.loop).start()
     while True:
-        input('')
+        get_input()
         lantern.trigger()
 
 if __name__ == "__main__":
