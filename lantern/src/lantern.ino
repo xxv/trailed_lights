@@ -60,7 +60,6 @@ void setup() {
   pinMode(MOTION_PIN, INPUT);
 
   FastLED.addLeds<APA102, MOSI, SCK, BGR>(leds, NUM_LEDS);
-  FastLED.showColor(CRGB::Black);
 
   wifiManager.setAPCallback(configModeCallback);
 
@@ -101,22 +100,32 @@ void reconnect() {
     // Create a random client ID
     String clientId = "lantern-";
     clientId += String(random(0xffff), HEX);
-    // Attempt to connect
-    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password,
-                  lantern_id_status, 0, 1, "offline")) {
+
+    bool connected;
+    if (strlen(mqtt_user) == 0) {
+      connected = client.connect(clientId.c_str(), lantern_id_status,
+        0, 1, "offline");
+    } else {
+      connected = client.connect(clientId.c_str(), mqtt_user, mqtt_password,
+                  lantern_id_status, 0, 1, "offline");
+    }
+
+    if (connected) {
+      digitalWrite(STATUS_LED, 1);
       // Once connected, publish an announcement...
       client.publish(lantern_id_status, "online", 1);
       client.subscribe(lantern_id_color);
+    } else {
+      digitalWrite(STATUS_LED, 0);
     }
   }
 }
-
 
 void loop() {
   while (!client.connected()) {
     reconnect();
   }
 
-  client.loop();
   check_motion();
+  client.loop();
 }
