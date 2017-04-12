@@ -25,7 +25,7 @@ enum DeviceMode {
 WiFiManager wifiManager;
 Ticker animationTicker;
 
-WiFiClientSecure wifi;
+WiFiClient wifi;
 PubSubClient client(wifi);
 
 CRGB leds[NUM_LEDS];
