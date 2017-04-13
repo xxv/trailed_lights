@@ -40,12 +40,13 @@ class Animation
 
 class Lantern
   constructor: (options) ->
-    {@ctx, @x, @y, @alpha = 0, @radius = 40} = options
+    {@id, @ctx, @x, @y, @client, @alpha = 0, @radius = 40} = options
     @update_gradient()
     @fade_white_anim = new Animation pattern: [[1, 0], [1, 5000], [0, 1000]], on_update: (value) => @alpha = value
     @fade_anim = new Animation pattern: patterns[0], on_update: (value) =>
         @alpha = value
       , on_done: () => @fade_white()
+    @client.addListener (message) => @onMessage(message)
 
   draw: (time) ->
     @fade_anim.tick(time)
@@ -57,12 +58,20 @@ class Lantern
     @ctx.fillRect(0, 0, 100, 100)
     @ctx.restore()
 
+  onMessage: (message) ->
+    parts = message.destinationName.split("/")
+    if parts[0] == "lantern" and parts[1] == @id
+      console.log "lantern " + @id + " got message " + message.destinationName
+      if parts[2] == "color"
+        @color = parts[2]
+
   trigger: () ->
     if not @triggered
       @triggered = true
       window.setTimeout () =>
         @triggered = false
       , 2000
+      @client.motion(@id)
       this.fade_color()
 
   reset: () ->
@@ -98,7 +107,40 @@ patterns = [
    ]
 ]
 
+class MQTTClient
+  constructor: (hostname, port) ->
+    @hostname = hostname
+    @port = port
+    @listeners = []
+
+  connect: () ->
+    console.log("Connecting to " + @hostname + "...")
+    @client = new Paho.MQTT.Client(@hostname, Number(@port), "clientId")
+    @client.onMessageArrived = (message) => @onMessageArrived(message)
+    @client.connect({
+        onSuccess: () => @onConnect()
+    })
+
+  onConnect: () ->
+    console.log("Connected.")
+    @client.subscribe("#")
+
+  onMessageArrived: (message) ->
+    console.log("Message arrived: topic=" + message.destinationName + ", message=" + message.payloadString)
+    for listener in @listeners
+      listener message
+
+  addListener: (listener) ->
+    @listeners.push listener
+
+  motion: (id) ->
+    message = new Paho.MQTT.Message("")
+    message.destinationName = "lantern/" + id + "/motion"
+    @client.send(message)
+
 $(document).ready () ->
+  client = new MQTTClient("192.168.1.132", 1884)
+  client.connect()
   canvas = $('#canvas')[0]
   canvas.width = 1600
   canvas.height = 1200
@@ -115,7 +157,7 @@ $(document).ready () ->
   globs.bg = img
 
   for pos in lantern_pos
-    lanterns.push(new Lantern(ctx: globs.ctx, x: pos[0], y: pos[1]))
+    lanterns.push(new Lantern(id: 'sim' + pos[0], ctx: globs.ctx, x: pos[0], y: pos[1], client: client))
 
   frame()
 
