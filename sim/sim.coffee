@@ -41,6 +41,7 @@ class Animation
 class Lantern
   constructor: (options) ->
     {@id, @ctx, @x, @y, @client, @alpha = 0, @radius = 40} = options
+    @color = [255, 255, 255]
     @update_gradient()
     @fade_white_anim = new Animation pattern: [[1, 0], [1, 5000], [0, 1000]], on_update: (value) => @alpha = value
     @fade_anim = new Animation pattern: patterns[0], on_update: (value) =>
@@ -63,7 +64,7 @@ class Lantern
     if parts[0] == "lantern" and parts[1] == @id
       console.log "lantern " + @id + " got message " + message.destinationName
       if parts[2] == "color"
-        @color = parts[2]
+        @color = @hex_to_rgb(message.payloadString)
 
   trigger: () ->
     if not @triggered
@@ -79,8 +80,22 @@ class Lantern
 
   update_gradient: () ->
     @gradient = @ctx.createRadialGradient(50, 50, @radius, 50, 50, 0)
-    @gradient.addColorStop(0, 'rgba(' + Math.round((1-@alpha) * 255) + ', ' + Math.round((1-@alpha) * 255) + ', 255, 0)')
-    @gradient.addColorStop(1, 'rgba(' + Math.round((1-@alpha) * 255) + ', ' + Math.round((1-@alpha) * 255) + ', 255, 0.50)')
+    @gradient.addColorStop(0, 'rgba(' + Math.round(@lerp(@color[0], 255, 1-@alpha)) + ', ' + Math.round(@lerp(@color[1], 255, 1-@alpha))  + ', ' + Math.round(@lerp(@color[2], 255, 1-@alpha)) + ', 0)')
+    @gradient.addColorStop(1, 'rgba(' + Math.round(@lerp(@color[0], 255, 1-@alpha)) + ', ' + Math.round(@lerp(@color[1], 255, 1-@alpha))  + ', ' + Math.round(@lerp(@color[2], 255, 1-@alpha)) + ', 0.5)')
+
+  lerp: (a, b, percent) ->
+    (b - a) * percent + a
+
+  hex_to_rgb: (color) ->
+    arrBuff = new ArrayBuffer(4)
+    vw = new DataView(arrBuff)
+    vw.setUint32(0, parseInt(color[1..], 16), false)
+    arrByte = new Uint8Array(arrBuff)
+
+    return [arrByte[1], arrByte[2], arrByte[3]]
+
+  set_color: (color) ->
+    @color = hex_to_rgb color
 
   fade_color: () ->
     @fade_anim.start()
