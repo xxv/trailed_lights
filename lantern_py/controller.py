@@ -91,8 +91,31 @@ class TripHandler():
                 self.advance_trip(trip)
                 return True
         return None
+
     def get_trips(self):
         return self.trips
+
+    def get_completed_trips(self):
+        completed = 0
+
+        for trip in self.trips:
+            if not trip['next_lid']:
+                completed += 1
+
+        return completed
+
+    def get_active_trips(self):
+        active = 0
+
+        for trip in self.trips:
+            if trip['next_lid']:
+                active += 1
+
+        return active
+
+    def reset(self):
+        self.trips = []
+        self.controller.notify_reset()
 
 class Controller(MQTTBase):
     learn_lids = False
@@ -136,18 +159,27 @@ class Controller(MQTTBase):
                     self.init()
                 elif payload == '0':
                     self.init_done()
+            elif topic[1] == 'reset_trips':
+                self.trip_handler.reset()
 
     def send_color(self, lid, color):
         self.mqtt.publish("lantern/{}/color".format(lid), color, retain=True)
 
     def send_trip_begin(self, lid):
         self.mqtt.publish('trip/{}/begin'.format(lid))
+        self.mqtt.publish('controller/active_trips', self.trip_handler.get_active_trips())
 
     def send_trip_progress(self, lid, position):
         self.mqtt.publish('trip/{}/progress'.format(lid), position)
 
     def send_trip_complete(self, lid):
         self.mqtt.publish('trip/{}/complete'.format(lid))
+        self.mqtt.publish('controller/completed_trips', self.trip_handler.get_completed_trips())
+        self.mqtt.publish('controller/active_trips', self.trip_handler.get_active_trips())
+
+    def notify_reset(self):
+        self.mqtt.publish('controller/completed_trips', self.trip_handler.get_completed_trips())
+        self.mqtt.publish('controller/active_trips', self.trip_handler.get_active_trips())
 
     def loop(self):
         self.mqtt.loop_forever()
