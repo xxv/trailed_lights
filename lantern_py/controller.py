@@ -153,7 +153,7 @@ class Controller(MQTTBase):
             elif topic[1] == 'done':
                 self.init_done()
             elif topic[1] == 'brightness':
-                self.trip_handler.brightness = int(payload) / 100
+                self.trip_handler.brightness = int(payload) / 100.0
             elif topic[1] == 'learning':
                 if payload == '1':
                     self.init()
