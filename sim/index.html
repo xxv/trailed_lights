@@ -6,7 +6,12 @@
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="mqttws31.js"></script>
-    <script src="sim.js"></script>
+    <script type="text/javascript" src="sim.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+	  window.init_sim("192.168.1.132", 1884);
+	});
+    </script>
 	</head>
 	<body>
 

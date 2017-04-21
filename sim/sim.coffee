@@ -104,13 +104,13 @@ class Lantern
     @fade_white_anim.start()
 
 lantern_pos = [
-  [40, 280]
-  [140, 250]
-  [240, 280]
-  [340, 250]
-  [440, 280]
-  [540, 250]
-  [640, 280]
+  [40, 180]
+  [140, 150]
+  [240, 180]
+  [340, 150]
+  [440, 180]
+  [540, 150]
+  [640, 180]
 ]
 
 lanterns = []
@@ -153,8 +153,8 @@ class MQTTClient
     message.destinationName = "lantern/" + id + "/motion"
     @client.send(message)
 
-$(document).ready () ->
-  client = new MQTTClient("192.168.1.132", 1884)
+window.init_sim = (server, port) ->
+  client = new MQTTClient(server, port)
   client.connect()
   canvas = $('#canvas')[0]
   canvas.width = 1600
@@ -183,7 +183,7 @@ window.onmousemove = (event) ->
 
 frame = (timestamp) ->
   globs.ctx.drawImage(globs.bg, 0, 0)
-  globs.ctx.fillRect(globs.i, 276, 10, 10)
+  globs.ctx.fillRect(globs.i, 176, 10, 10)
   lantern.draw(timestamp) for lantern in lanterns
 
   for lantern, i in lanterns
