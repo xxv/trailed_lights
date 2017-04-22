@@ -130,7 +130,8 @@ class MQTTClient
 
   connect: () ->
     console.log("Connecting to " + @hostname + "...")
-    @client = new Paho.MQTT.Client(@hostname, Number(@port), "clientId")
+    client_id = Math.random().toString(36).substring(8)
+    @client = new Paho.MQTT.Client(@hostname, Number(@port), client_id)
     @client.onMessageArrived = (message) => @onMessageArrived(message)
     @client.connect({
         onSuccess: () => @onConnect()
