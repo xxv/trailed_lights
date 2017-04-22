@@ -65,18 +65,23 @@ class Lantern
       console.log "lantern " + @id + " got message " + message.destinationName
       if parts[2] == "color"
         @color = @hex_to_rgb(message.payloadString)
+      else if parts[2] == "motion"
+        @on_motion()
 
-  trigger: () ->
+  on_motion:() ->
     if not @triggered
       @triggered = true
       window.setTimeout () =>
         @triggered = false
       , 2000
-      @client.motion(@id)
-      this.fade_color()
+      @fade_color()
+
+  trigger: () ->
+    @on_motion()
+    @client.motion(@id)
 
   reset: () ->
-    this.fade_white()
+    @fade_white()
 
   update_gradient: () ->
     @gradient = @ctx.createRadialGradient(50, 50, @radius, 50, 50, 0)
