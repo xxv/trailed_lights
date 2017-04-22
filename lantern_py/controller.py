@@ -24,13 +24,17 @@ class TripHandler():
             print("need to init first")
         elif len(self.controller.get_lanterns()) == 1:
             print("only one known lantern")
+            self.controller.send_color(lid, self.get_random_color())
         elif len(self.get_trips_for_lantern(lid)) > 0:
             print("motion at same lantern on trip")
         elif self.is_first_lantern(lid) or self.is_last_lantern(lid):
+            print("first or last lantern")
             if not self.on_interior_motion(lid):
                 self.start_trip(lid)
         else:
-            self.on_interior_motion(lid)
+            print("interior motion")
+            if not self.on_interior_motion(lid):
+                print("motion on unknown trip")
 
     def is_first_lantern(self, lid):
         return self.controller.get_lanterns()[0]['lid'] == lid
@@ -46,9 +50,9 @@ class TripHandler():
 
     def get_next_lid(self, lid, direction):
         position = self.get_position(lid)
-        if direction == 1 and position == len(self.controller.get_lanterns()) - 1:
+        if direction == 1 and self.is_last_lantern(lid):
             return None
-        elif direction == -1 and position == 0:
+        if direction == -1 and self.is_first_lantern(lid):
             return None
         return self.controller.get_lanterns()[position + direction]['lid']
 
@@ -61,7 +65,7 @@ class TripHandler():
         direction = 1 if self.is_first_lantern(lid) else -1
         trip = {'start_lid': lid,
                 'direction': direction,
-                'last_lid': lid,
+                'prev_lid': lid,
                 'uuid': uuid.uuid4(),
                 'next_lid': self.get_next_lid(lid, direction),
                 'color': color}
@@ -70,6 +74,7 @@ class TripHandler():
         self.controller.send_trip_begin(trip['uuid'])
 
     def advance_trip(self, trip):
+        trip['prev_lid'] = trip['next_lid']
         trip['next_lid'] = self.get_next_lid(trip['next_lid'], trip['direction'])
         if trip['next_lid'] is None:
             self.controller.send_trip_complete(trip['uuid'])
@@ -78,7 +83,9 @@ class TripHandler():
     def get_trips_for_lantern(self, lid):
         trips = []
         for trip in self.trips:
-            if trip['last_lid'] == lid:
+            if not trip['next_lid']:
+                continue
+            if trip['prev_lid'] == lid:
                 trips.append(trip)
 
         return trips
@@ -142,6 +149,7 @@ class Controller(MQTTBase):
                 self.lanterns.append({'lid': lid})
                 print("Learned lantern {}".format(lid))
                 self.mqtt.publish('controller/added', '{}'.format(lid))
+                self.send_color(lid, '#FFFF00')
             else:
                 self.trip_handler.on_motion(lid)
 
@@ -184,6 +192,9 @@ class Controller(MQTTBase):
     def loop(self):
         self.mqtt.loop_forever()
 
+    def disconnect(self):
+        self.mqtt.disconnect()
+
     def init(self):
         self.lanterns = []
         self.learn_lids = True
@@ -224,6 +235,11 @@ def main():
         elif i == 'trips':
             for trip in controller.trip_handler.get_trips():
                 print(trip)
+        elif i == 'exit' or i == 'quit':
+            controller.disconnect()
+            sys.exit(0)
+        else:
+            print("Unknown command")
 
 if __name__ == "__main__":
     main()
