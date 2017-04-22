@@ -1,12 +1,18 @@
 """MQTTBase"""
 
 import ssl
+import json
 
 import paho.mqtt.client as paho
 
 class MQTTBase():
-    def __init__(self, mqtt):
-        self.mqtt_config = mqtt
+    def __init__(self, config_file=None, config=None):
+        if config_file:
+            self.mqtt_config = self.read_config(config_file)
+        elif config:
+            self.mqtt_config = config
+        else:
+            raise Exception("must provide a configuration")
         self.mqtt = paho.Client()
         self.mqtt.on_connect = self.on_connect
         self.mqtt.on_message = self.on_message
@@ -28,3 +34,13 @@ class MQTTBase():
 
     def on_message(self, client, userdata, message):
         pass
+
+    def read_config(self, config_file_name):
+        config = None
+        with open(config_file_name) as config_file:
+            config = json.load(config_file)
+
+        return config
+
+    def disconnect(self):
+        self.mqtt.disconnect()

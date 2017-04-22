@@ -127,8 +127,8 @@ class TripHandler():
 class Controller(MQTTBase):
     learn_lids = False
     lanterns = []
-    def __init__(self, mqtt):
-        MQTTBase.__init__(self, mqtt)
+    def __init__(self, config_file):
+        MQTTBase.__init__(self, config_file=config_file)
         self.trip_handler = TripHandler(self)
 
     def on_connect(self, client, userdata, flags, conn_result):
@@ -213,13 +213,10 @@ def main():
         print("Usage: {} config.json".format(sys.argv[0]))
         sys.exit(1)
 
-    config_file_name = sys.argv[1]
-    config = None
-    with open(config_file_name) as config_file:
-        config = json.load(config_file)
-    controller = Controller(config)
+    controller = Controller(config_file=sys.argv[1])
     controller.connect()
-    Thread(target=controller.loop).start()
+    controller_thread = Thread(target=controller.loop)
+    controller_thread.start()
     while True:
         if V3:
             i = input('Lanterns> ')

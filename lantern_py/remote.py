@@ -1,25 +1,15 @@
 #!/usr/bin/env python
 
-import json
-import paho.mqtt.client as paho
 from threading import Thread
-import random
-import uuid
 import sys
 
-v3=sys.version_info[0] >= 3
+from mqtt_base import MQTTBase
 
-class Controller():
-    def __init__(self, mqtt):
-        self.mqtt_config = mqtt
-        self.mqtt = paho.Client()
-        self.mqtt.on_connect = self.on_connect
-        self.mqtt.on_message = self.on_message
-        self.topic = self.mqtt_config['topic']
+V3 = sys.version_info[0] >= 3
 
-    def connect(self):
-        print("Connecting to {host}:{port}...".format(**self.mqtt_config))
-        self.mqtt.connect(self.mqtt_config['host'], self.mqtt_config['port'])
+class Remote(MQTTBase):
+    def __init__(self, config_file):
+        MQTTBase.__init__(self, config_file=config_file)
 
     def on_connect(self, client, userdata, flags, rc):
         self.mqtt.subscribe('controller/#')
@@ -29,29 +19,43 @@ class Controller():
     def on_message(self, client, userdata, message):
         print('{} {}'.format(message.topic, message.payload.decode('utf-8')))
 
-    def loop(self):
-        self.mqtt.loop_forever()
-
     def init(self):
         self.mqtt.publish('controller/init')
 
     def init_done(self):
         self.mqtt.publish('controller/done')
 
+    def reset(self):
+        self.mqtt.publish('controller/reset_trips')
+
+    def brightness(self, brightness):
+        self.mqtt.publish('controller/brightness', brightness)
+
 def main():
-    config={'host': '192.168.1.132', 'port': 1883, 'topic': 'lantern'}
-    controller=Controller(config)
-    controller.connect()
-    Thread(target=controller.loop).start()
+    if len(sys.argv) != 2:
+        print("usage: {} config_file.json".format(sys.argv[0]))
+        sys.exit(1)
+    remote = Remote(config_file=sys.argv[1])
+    remote.connect()
+    Thread(target=remote.loop).start()
     while True:
-        if v3:
-            i=input('Lanterns> ')
+        if V3:
+            i = input('Lanterns> ').split()
         else:
-            i=raw_input('Lanterns> ')
-        if i == 'init':
-            controller.init()
-        elif i == 'done':
-            controller.init_done()
+            i = raw_input('Lanterns> ').split()
+        cmd = i[0]
+        if cmd == 'init':
+            remote.init()
+        elif cmd == 'done':
+            remote.init_done()
+        elif cmd == 'reset':
+            remote.reset()
+        elif cmd == 'brightness':
+            remote.brightness(int(i[1]))
+        elif cmd == 'quit' or cmd == 'exit':
+            remote.disconnect()
+        else:
+            print("Unknown command")
 
 if __name__ == "__main__":
     main()
