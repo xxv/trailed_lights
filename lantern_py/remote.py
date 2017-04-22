@@ -43,7 +43,7 @@ def main():
             i = input('Lanterns> ').split()
         else:
             i = raw_input('Lanterns> ').split()
-        cmd = i[0]
+        cmd = i[0] if len(i) > 0 else None
         if cmd == 'init':
             remote.init()
         elif cmd == 'done':
@@ -54,6 +54,8 @@ def main():
             remote.brightness(int(i[1]))
         elif cmd == 'quit' or cmd == 'exit':
             remote.disconnect()
+        elif cmd is None:
+            pass
         else:
             print("Unknown command")
 
