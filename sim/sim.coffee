@@ -77,8 +77,9 @@ class Lantern
       @fade_color()
 
   trigger: () ->
+    if not @triggered
+      @client.motion(@id)
     @on_motion()
-    @client.motion(@id)
 
   reset: () ->
     @fade_white()
