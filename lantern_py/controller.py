@@ -25,8 +25,6 @@ class TripHandler():
         elif len(self.controller.get_lanterns()) == 1:
             print("only one known lantern")
             self.controller.send_color(lid, self.get_random_color())
-        elif len(self.get_trips_for_lantern(lid)) > 0:
-            print("motion at same lantern on trip")
         elif self.is_first_lantern(lid) or self.is_last_lantern(lid):
             print("first or last lantern")
             if not self.on_interior_motion(lid):
@@ -34,7 +32,10 @@ class TripHandler():
         else:
             print("interior motion")
             if not self.on_interior_motion(lid):
-                print("motion on unknown trip")
+                if len(self.get_trips_for_lantern(lid)) > 0:
+                    print("motion at same lantern on trip")
+                else:
+                    print("motion on unknown trip")
 
     def is_first_lantern(self, lid):
         return self.controller.get_lanterns()[0]['lid'] == lid
