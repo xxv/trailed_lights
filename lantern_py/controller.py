@@ -14,7 +14,7 @@ V3 = sys.version_info[0] >= 3
 class TripHandler():
     trips = []
     random = Random()
-    brightness = 0.1
+    brightness = 1
 
     def __init__(self, controller):
         self.controller = controller
