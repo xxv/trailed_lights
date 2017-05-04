@@ -92,13 +92,14 @@ class TripHandler():
         return trips
 
     def on_interior_motion(self, lid):
+        count = 0
         for trip in self.trips:
             if trip['next_lid'] == lid:
                 self.controller.send_trip_progress(trip['uuid'], lid)
                 self.controller.send_color(lid, trip['color'])
                 self.advance_trip(trip)
-                return True
-        return None
+                count += 1
+        return count
 
     def get_trips(self):
         return self.trips
