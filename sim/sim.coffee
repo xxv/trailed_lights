@@ -43,7 +43,7 @@ class Lantern
     {@id, @ctx, @x, @y, @client, @alpha = 0, @radius = 40} = options
     @color = [255, 255, 255]
     @update_gradient()
-    @fade_white_anim = new Animation pattern: [[1, 0], [1, 5000], [0, 1000]], on_update: (value) => @alpha = value
+    @fade_white_anim = new Animation pattern: [[1, 0], [1, 10000], [0, 1000]], on_update: (value) => @alpha = value
     @fade_anim = new Animation pattern: patterns[0], on_update: (value) =>
         @alpha = value
       , on_done: () => @fade_white()
@@ -67,6 +67,8 @@ class Lantern
         @color = @hex_to_rgb(message.payloadString)
       else if parts[2] == "motion"
         @on_motion()
+      else if parts[2] == "trigger"
+        @fade_color()
 
   on_motion:() ->
     if not @triggered
@@ -74,7 +76,6 @@ class Lantern
       window.setTimeout () =>
         @triggered = false
       , 2000
-      @fade_color()
 
   trigger: () ->
     if not @triggered

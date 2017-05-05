@@ -25,6 +25,7 @@ class TripHandler():
         elif len(self.controller.get_lanterns()) == 1:
             print("only one known lantern")
             self.controller.send_color(lid, self.get_random_color())
+            self.controller.send_trigger(lid)
         elif self.is_first_lantern(lid) or self.is_last_lantern(lid):
             print("first or last lantern")
             if not self.on_interior_motion(lid):
@@ -34,7 +35,10 @@ class TripHandler():
             if not self.on_interior_motion(lid):
                 if len(self.get_trips_for_lantern(lid)) > 0:
                     print("motion at same lantern on trip")
+                    self.controller.send_trigger(lid)
                 else:
+                    self.controller.send_color(lid, '#000000')
+                    self.controller.send_trigger(lid)
                     print("motion on unknown trip")
 
     def is_first_lantern(self, lid):
@@ -58,8 +62,30 @@ class TripHandler():
         return self.controller.get_lanterns()[position + direction]['lid']
 
     def get_random_color(self):
-        (r, g, b) = colorsys.hsv_to_rgb(self.random.random(), 1, self.brightness)
-        return '#{:02X}{:02X}{:02X}'.format(int(r*255), int(g*255), int(b*255))
+        return self.to_hex(colorsys.hsv_to_rgb(self.random.random(), 1, self.brightness))
+
+    def to_hex(self, rgb):
+        return '#{:02X}{:02X}{:02X}'.format(int(rgb[0]*255), int(rgb[1]*255), int(rgb[2]*255))
+
+    def from_hex(self, hexrgb):
+        return (int(hexrgb[1:3], 16)/255.0, int(hexrgb[3:5], 16)/255.0, int(hexrgb[5:7], 16)/255.0)
+
+    def intermediate_color(self, color1, color2):
+        hsv1 = colorsys.rgb_to_hsv(*(self.from_hex(color1)))
+        hsv2 = colorsys.rgb_to_hsv(*(self.from_hex(color2)))
+
+        mid_hue = self.mid_hue(hsv1[0] * 360, hsv2[0] * 360) / 360.0
+
+        return self.to_hex(colorsys.hsv_to_rgb(mid_hue, hsv1[1], hsv1[2]))
+
+    def mid_hue(self, hue1, hue2):
+        diff = abs(hue1 - hue2)
+        if diff > 180:
+            hue3 = diff / 2 + min(hue1, hue2)
+        else:
+            hue3 = ((360 - diff) / 2 + min(hue1, hue2)) % 360
+
+        return hue3
 
     def start_trip(self, lid):
         color = self.get_random_color()
@@ -72,6 +98,7 @@ class TripHandler():
                 'color': color}
         self.trips.append(trip)
         self.controller.send_color(lid, color)
+        self.controller.send_trigger(lid)
         self.controller.send_trip_begin(trip['uuid'])
 
     def advance_trip(self, trip):
@@ -91,15 +118,29 @@ class TripHandler():
 
         return trips
 
-    def on_interior_motion(self, lid):
-        count = 0
+    def get_trips_for_next_motion(self, lid):
+        trips = []
         for trip in self.trips:
             if trip['next_lid'] == lid:
-                self.controller.send_trip_progress(trip['uuid'], lid)
-                self.controller.send_color(lid, trip['color'])
-                self.advance_trip(trip)
-                count += 1
-        return count
+                trips.append(trip)
+
+        return trips
+
+    def on_interior_motion(self, lid):
+        trips = self.get_trips_for_next_motion(lid)
+        if len(trips) == 2 and trips[0]['direction'] != trips[1]['direction']:
+            merged_color = self.intermediate_color(trips[0]['color'], trips[1]['color'])
+            trips[0]['color'] = merged_color
+            trips[1]['color'] = merged_color
+            print("two intersecting trips! Setting color to {}".format(merged_color))
+
+        for trip in trips:
+            self.controller.send_trip_progress(trip['uuid'], lid)
+            self.controller.send_color(lid, trip['color'])
+            self.controller.send_trigger(lid)
+            self.advance_trip(trip)
+
+        return len(trips)
 
     def get_trips(self):
         return self.trips
@@ -152,6 +193,7 @@ class Controller(MQTTBase):
                 print("Learned lantern {}".format(lid))
                 self.mqtt.publish('controller/added', '{}'.format(lid))
                 self.send_color(lid, '#FFFF00')
+                self.send_trigger(lid)
             else:
                 self.trip_handler.on_motion(lid)
 
@@ -174,6 +216,9 @@ class Controller(MQTTBase):
 
     def send_color(self, lid, color):
         self.mqtt.publish("lantern/{}/color".format(lid), color, retain=True)
+
+    def send_trigger(self, lid):
+        self.mqtt.publish("lantern/{}/trigger".format(lid))
 
     def send_trip_begin(self, lid):
         self.mqtt.publish('trip/{}/begin'.format(lid))
