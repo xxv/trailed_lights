@@ -1,0 +1,511 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:steve_parts
+LIBS:crumpschemes
+LIBS:board-cache
+EELAYER 25 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title ""
+Date "sam. 04 avril 2015"
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Text Notes 8450 600  0    60   ~ 0
+Adafruit FeatherWing\n
+$Comp
+L VCC #PWR8
+U 1 1 56D753B8
+P 9700 750
+F 0 "#PWR8" H 9700 600 50  0001 C CNN
+F 1 "VCC" H 9700 900 50  0000 C CNN
+F 2 "" H 9700 750 50  0000 C CNN
+F 3 "" H 9700 750 50  0000 C CNN
+	1    9700 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X12 JP3
+U 1 1 56D754D1
+P 9300 1800
+F 0 "JP3" H 9300 2450 50  0000 C CNN
+F 1 "PinHeader_01x12_2.54mm" V 9400 1800 50  0000 C CNN
+F 2 "Adafruit_FeatherWing:Conn_PinHeader_1x12" H 9300 1800 50  0001 C CNN
+F 3 "" H 9300 1800 50  0000 C CNN
+	1    9300 1800
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X16 JP1
+U 1 1 56D755F3
+P 10250 1650
+F 0 "JP1" H 10250 800 50  0000 C CNN
+F 1 "PinHeader_01x16_2.54mm" V 10350 1650 50  0000 C CNN
+F 2 "Adafruit_FeatherWing:Conn_PinHeader_1x16" H 10250 1650 50  0001 C CNN
+F 3 "" H 10250 1650 50  0000 C CNN
+F 4 "_" H 10250 1650 60  0001 C CNN "Manf#"
+F 5 "_" H 10250 1650 60  0001 C CNN "Manf"
+F 6 "_" H 10250 1650 60  0001 C CNN "Optn"
+	1    10250 1650
+	1    0    0    1   
+$EndComp
+$Comp
+L GND #PWR9
+U 1 1 56D75A03
+P 9700 2500
+F 0 "#PWR9" H 9700 2250 50  0001 C CNN
+F 1 "GND" H 9700 2350 50  0000 C CNN
+F 2 "" H 9700 2500 50  0000 C CNN
+F 3 "" H 9700 2500 50  0000 C CNN
+	1    9700 2500
+	1    0    0    -1  
+$EndComp
+Text Label 10050 900  2    60   ~ 0
+~RESET
+Text Label 10050 1100 2    60   ~ 0
+AREF
+Text Label 10050 1300 2    60   ~ 0
+A0
+Text Label 10050 1400 2    60   ~ 0
+A1
+Text Label 10050 1500 2    60   ~ 0
+A2
+Text Label 10050 1600 2    60   ~ 0
+A3
+Text Label 10050 1800 2    60   ~ 0
+A5
+Text Label 10050 1900 2    60   ~ 0
+SCK
+Text Label 10050 2000 2    60   ~ 0
+MOSI
+Text Label 10050 2100 2    60   ~ 0
+MISO
+Text Label 10050 2200 2    60   ~ 0
+D0
+Text Label 10050 2300 2    60   ~ 0
+D1
+Text Label 10050 1700 2    60   ~ 0
+A4
+Text Label 9100 1350 2    60   ~ 0
+EN
+Text Label 9100 1550 2    60   ~ 0
+D13
+Text Label 9100 1650 2    60   ~ 0
+D12
+Text Label 9100 1750 2    60   ~ 0
+D11
+Text Label 9100 1850 2    60   ~ 0
+D10
+Text Label 9100 1950 2    60   ~ 0
+D9
+Text Label 9100 2050 2    60   ~ 0
+D6
+Text Label 9100 2150 2    60   ~ 0
+D5
+Text Label 9100 2250 2    60   ~ 0
+SCI
+Text Label 9100 2350 2    60   ~ 0
+SDA
+Wire Notes Line
+	4650 2750 10500 2750
+Wire Notes Line
+	8400 2750 8400 500 
+Wire Notes Line
+	8400 650  9450 650 
+Wire Notes Line
+	9450 650  9450 500 
+Wire Wire Line
+	10050 1200 9700 1200
+Wire Wire Line
+	9700 1200 9700 2500
+Wire Wire Line
+	10050 1000 9700 1000
+Wire Wire Line
+	9700 1000 9700 750 
+Wire Wire Line
+	9100 1450 8800 1450
+Wire Wire Line
+	9100 1250 8800 1250
+Text Label 8800 1250 2    60   ~ 0
+VBAT
+Text Label 8800 1450 2    60   ~ 0
+VUSB
+NoConn ~ 10050 2400
+$Comp
+L GND #PWR6
+U 1 1 59796D2F
+P 7800 3800
+F 0 "#PWR6" H 7800 3550 50  0001 C CNN
+F 1 "GND" H 7800 3650 50  0000 C CNN
+F 2 "" H 7800 3800 50  0001 C CNN
+F 3 "" H 7800 3800 50  0001 C CNN
+	1    7800 3800
+	1    0    0    -1  
+$EndComp
+Text Label 8800 3200 0    60   ~ 0
+VBAT
+Text Label 7800 3500 0    60   ~ 0
+MOSI
+$Comp
+L APA102 U1
+U 1 1 59797576
+P 8600 3650
+F 0 "U1" H 8400 3950 60  0000 C CNN
+F 1 "APA102 (RGB)" H 8500 3350 60  0000 C CNN
+F 2 "CrumpPrints:APA102" H 8600 3200 60  0001 C CNN
+F 3 "" H 8600 3200 60  0000 C CNN
+	1    8600 3650
+	1    0    0    -1  
+$EndComp
+Text Label 7800 3650 0    60   ~ 0
+SCK
+Wire Wire Line
+	7800 3650 8150 3650
+Wire Wire Line
+	7800 3500 8150 3500
+Wire Wire Line
+	7800 3800 8150 3800
+$Comp
+L APA102 U2
+U 1 1 5979778F
+P 9700 3650
+F 0 "U2" H 9500 3950 60  0000 C CNN
+F 1 "APA102 (W)" H 9600 3350 60  0000 C CNN
+F 2 "CrumpPrints:APA102" H 9700 3200 60  0001 C CNN
+F 3 "" H 9700 3200 60  0000 C CNN
+	1    9700 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8050 3800 8050 4100
+Wire Wire Line
+	8050 4100 9250 4100
+Wire Wire Line
+	9250 4100 9250 3800
+Connection ~ 8050 3800
+Wire Wire Line
+	9050 3800 9150 3800
+Wire Wire Line
+	9150 3800 9150 3200
+Wire Wire Line
+	8800 3200 10250 3200
+Wire Wire Line
+	10250 3200 10250 3800
+Wire Wire Line
+	10250 3800 10150 3800
+Connection ~ 9150 3200
+Wire Wire Line
+	9050 3650 9250 3650
+Wire Wire Line
+	9050 3500 9250 3500
+$Comp
+L CONN_01X03 J1
+U 1 1 59797A62
+P 7400 950
+F 0 "J1" H 7400 1150 50  0000 C CNN
+F 1 "MOTION DETECTOR" V 7500 950 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 7400 950 50  0001 C CNN
+F 3 "" H 7400 950 50  0001 C CNN
+	1    7400 950 
+	-1   0    0    1   
+$EndComp
+$Comp
+L R_PHOTO R3
+U 1 1 59797B58
+P 6200 1550
+F 0 "R3" V 6300 1600 50  0000 L CNN
+F 1 "R_PHOTO" H 6300 1550 50  0000 L TNN
+F 2 "Opto-Devices:Resistor_LDR_5.1x4.3_RM3.4" V 6250 1300 50  0001 L CNN
+F 3 "" H 6200 1500 50  0001 C CNN
+	1    6200 1550
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R1
+U 1 1 597CE41F
+P 5800 1200
+F 0 "R1" V 5700 1200 50  0000 C CNN
+F 1 "22.6K" V 5800 1200 39  0000 C CNN
+F 2 "Discret:R3" V 5730 1200 50  0001 C CNN
+F 3 "" H 5800 1200 50  0001 C CNN
+	1    5800 1200
+	-1   0    0    1   
+$EndComp
+$Comp
+L R R2
+U 1 1 597CE47C
+P 5800 1950
+F 0 "R2" V 5880 1950 50  0000 C CNN
+F 1 "10K" V 5800 1950 50  0000 C CNN
+F 2 "Discret:R3" V 5730 1950 50  0001 C CNN
+F 3 "" H 5800 1950 50  0001 C CNN
+	1    5800 1950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5800 1350 5800 1800
+Wire Wire Line
+	5800 1400 6200 1400
+Connection ~ 5800 1400
+$Comp
+L GND #PWR3
+U 1 1 597CE63C
+P 5800 2100
+F 0 "#PWR3" H 5800 1850 50  0001 C CNN
+F 1 "GND" H 5800 1950 50  0000 C CNN
+F 2 "" H 5800 2100 50  0001 C CNN
+F 3 "" H 5800 2100 50  0001 C CNN
+	1    5800 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR2
+U 1 1 597CEF49
+P 5800 1050
+F 0 "#PWR2" H 5800 900 50  0001 C CNN
+F 1 "VCC" H 5800 1200 50  0000 C CNN
+F 2 "" H 5800 1050 50  0001 C CNN
+F 3 "" H 5800 1050 50  0001 C CNN
+	1    5800 1050
+	1    0    0    -1  
+$EndComp
+Text Label 6750 1750 2    60   ~ 0
+A0
+Wire Wire Line
+	6200 1750 6750 1750
+$Comp
+L R R4
+U 1 1 597D09D1
+P 6200 1950
+F 0 "R4" V 6280 1950 50  0000 C CNN
+F 1 "10K" V 6200 1950 50  0000 C CNN
+F 2 "Discret:R3" V 6130 1950 50  0001 C CNN
+F 3 "" H 6200 1950 50  0001 C CNN
+	1    6200 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR4
+U 1 1 597D0A0F
+P 6200 2100
+F 0 "#PWR4" H 6200 1850 50  0001 C CNN
+F 1 "GND" H 6200 1950 50  0000 C CNN
+F 2 "" H 6200 2100 50  0001 C CNN
+F 3 "" H 6200 2100 50  0001 C CNN
+	1    6200 2100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6200 1700 6200 1800
+Connection ~ 6200 1750
+$Comp
+L GND #PWR7
+U 1 1 597D0EF3
+P 7950 2350
+F 0 "#PWR7" H 7950 2100 50  0001 C CNN
+F 1 "GND" H 7950 2200 50  0000 C CNN
+F 2 "" H 7950 2350 50  0001 C CNN
+F 3 "" H 7950 2350 50  0001 C CNN
+	1    7950 2350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7650 1600 7650 2350
+Text Label 7650 1600 3    60   ~ 0
+D5
+Wire Notes Line
+	7150 2750 7150 500 
+Wire Notes Line
+	5400 2750 5400 500 
+Wire Notes Line
+	10500 4450 7400 4450
+Wire Notes Line
+	7400 4450 7400 2750
+$Comp
+L CONN_01X02 J2
+U 1 1 597D1FB0
+P 5000 1500
+F 0 "J2" H 5000 1650 50  0000 C CNN
+F 1 "EXT BUTTON" V 5100 1500 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 5000 1500 50  0001 C CNN
+F 3 "" H 5000 1500 50  0001 C CNN
+	1    5000 1500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR1
+U 1 1 597D2087
+P 5050 1900
+F 0 "#PWR1" H 5050 1650 50  0001 C CNN
+F 1 "GND" H 5050 1750 50  0000 C CNN
+F 2 "" H 5050 1900 50  0001 C CNN
+F 3 "" H 5050 1900 50  0001 C CNN
+	1    5050 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5050 1700 5050 1900
+Wire Wire Line
+	4950 1700 4950 1900
+Text Label 4950 1900 1    60   ~ 0
+D6
+Wire Notes Line
+	4650 2750 4650 500 
+$Comp
+L ATTINY85-20PU U?
+U 1 1 597D0F49
+P 5750 3400
+F 0 "U?" H 4600 3800 50  0000 C CNN
+F 1 "ATTINY85-20PU" H 6650 3000 50  0000 C CNN
+F 2 "Housings_DIP:DIP-8_W7.62mm" H 6750 3400 50  0001 C CIN
+F 3 "" H 5750 3400 50  0001 C CNN
+	1    5750 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 597D1088
+P 7100 3650
+F 0 "#PWR?" H 7100 3400 50  0001 C CNN
+F 1 "GND" H 7100 3500 50  0000 C CNN
+F 2 "" H 7100 3650 50  0001 C CNN
+F 3 "" H 7100 3650 50  0001 C CNN
+	1    7100 3650
+	1    0    0    -1  
+$EndComp
+$Comp
+L AVR-ISP-6 CON?
+U 1 1 597D1114
+P 4750 4050
+F 0 "CON?" H 4645 4290 50  0000 C CNN
+F 1 "AVR-ISP-6" H 4485 3820 50  0000 L BNN
+F 2 "AVR-ISP-6" V 4230 4090 50  0001 C CNN
+F 3 "" H 4725 4050 50  0001 C CNN
+	1    4750 4050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4600 4150 4100 4150
+Wire Wire Line
+	4100 4150 4100 3650
+Wire Wire Line
+	4100 3650 4400 3650
+Wire Wire Line
+	4600 4050 4300 4050
+Wire Wire Line
+	4300 4050 4300 3350
+Wire Wire Line
+	4300 3350 4400 3350
+$Comp
+L GND #PWR?
+U 1 1 597D12FA
+P 5200 4150
+F 0 "#PWR?" H 5200 3900 50  0001 C CNN
+F 1 "GND" H 5200 4000 50  0000 C CNN
+F 2 "" H 5200 4150 50  0001 C CNN
+F 3 "" H 5200 4150 50  0001 C CNN
+	1    5200 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 4150 4850 4150
+Wire Wire Line
+	4850 3950 5450 3950
+Wire Wire Line
+	4400 3250 4200 3250
+Wire Wire Line
+	4200 3250 4200 3950
+Wire Wire Line
+	4200 3950 4600 3950
+Wire Wire Line
+	4000 3150 4000 4400
+Wire Wire Line
+	4000 3150 4400 3150
+Wire Wire Line
+	4850 4050 5300 4050
+Wire Wire Line
+	5300 4050 5300 4400
+Wire Wire Line
+	5300 4400 4000 4400
+Wire Wire Line
+	4400 3550 3400 3550
+Wire Wire Line
+	4400 3450 3400 3450
+Text Label 3400 3450 0    60   ~ 0
+EN
+Text Label 8200 1050 2    60   ~ 0
+MOTION_GND
+Wire Wire Line
+	8200 1050 7600 1050
+Wire Wire Line
+	8200 950  7600 950 
+Wire Wire Line
+	8200 850  7600 850 
+Text Label 8200 950  2    60   ~ 0
+MOTION_VCC
+Text Label 8200 850  2    60   ~ 0
+MOTION_SIG
+Text Label 7800 2350 1    60   ~ 0
+MOTION_VCC
+Wire Wire Line
+	7800 2350 7800 1750
+$Comp
+L VCC #PWR?
+U 1 1 597D3E37
+P 7800 1750
+F 0 "#PWR?" H 7800 1600 50  0001 C CNN
+F 1 "VCC" H 7800 1900 50  0000 C CNN
+F 2 "" H 7800 1750 50  0001 C CNN
+F 3 "" H 7800 1750 50  0001 C CNN
+	1    7800 1750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7950 1800 7950 2350
+Text Label 7950 1800 3    60   ~ 0
+MOTION_GND
+Text Label 7650 2350 1    60   ~ 0
+MOTION_SIG
+Text Label 3400 3550 0    60   ~ 0
+MOTION_SIG
+Wire Wire Line
+	7100 3150 7300 3150
+Text Label 7300 3150 2    60   ~ 0
+VBAT
+Text Label 5450 3950 2    60   ~ 0
+VBAT
+$EndSCHEMATC
