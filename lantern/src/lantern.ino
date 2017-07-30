@@ -33,6 +33,7 @@ uint8_t mac[WL_MAC_ADDR_LENGTH];
 char device_id[9];
 char lantern_id_color[23];
 char lantern_id_motion[24];
+char lantern_id_sleep[23];
 char lantern_id_status[24];
 char color_hex[7];
 
@@ -47,10 +48,14 @@ void configModeCallback(WiFiManager *myWiFiManager) {
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   std::string payload_str ((char *)payload, length);
-  payload_str.replace(0, 1, "0x");
+
   if (strcmp(lantern_id_color, topic) == 0) {
+    payload_str.replace(0, 1, "0x");
     leds[0] = strtoul(payload_str.c_str(), nullptr, 16);
     FastLED.show();
+  } else if (strcmp(lantern_id_sleep, topic) == 0) {
+    long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
+    ESP.deepSleep(sleepTimeMs * 1000);
   }
 }
 
@@ -77,6 +82,7 @@ void setup() {
   sprintf(device_id, "%02x%02x%02x%02x", mac[2], mac[3], mac[4], mac[5]);
   sprintf(lantern_id_color, "lantern/%s/color", device_id);
   sprintf(lantern_id_motion, "lantern/%s/motion", device_id);
+  sprintf(lantern_id_sleep, "lantern/%s/sleep", device_id);
   sprintf(lantern_id_status, "lantern/%s/status", device_id);
 
   randomSeed(micros());
@@ -115,6 +121,7 @@ void reconnect() {
       // Once connected, publish an announcement...
       client.publish(lantern_id_status, "online", 1);
       client.subscribe(lantern_id_color);
+      client.subscribe(lantern_id_sleep);
     } else {
       digitalWrite(STATUS_LED, 0);
     }
