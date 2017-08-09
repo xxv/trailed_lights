@@ -12,13 +12,16 @@ motion_detector_pcb = [25.5, 35.7, 1.2];
 motion_detector_bracket_w=5;
 motion_detector_bracket_hole=0.75;
 
-photo_sensor_rotation = [0, 0, 90];
-photo_sensor_offset = [-15, 0, 0];
+feather = [23, 51, 12];
+feather_bracket_w = 4;
+
+photo_sensor_rotation = [0, 0, 0];
+photo_sensor_offset = [0, feather[1]/2, 0];
 photo_sensor_r = 5/2;
 photo_sensor_h = 2;
 photo_sensor_cut = 0.5;
+photo_sensor_lead_h = 24;
 
-feather = [23, 51, 12];
 
 $fn=120;
 smidge=0.01;
@@ -71,7 +74,8 @@ module mockup() {
   lid();
   color("red")
     motion_detector();
-  translate(photo_sensor_offset)
+  color("green")
+  translate(photo_sensor_offset + [0, 0, 0.5])
     rotate(photo_sensor_rotation)
       photo_resistor();
 
@@ -125,9 +129,8 @@ module cut_cylinder(r, h, cut) {
 module photo_resistor() {
   height = 2;
   cut_cylinder(r=photo_sensor_r, h=photo_sensor_h, cut=photo_sensor_cut);
-  lead_h=24;
-  translate([-2.7/2, 0, -lead_h])
-  cylinder(r=0.25, h=lead_h);
-  translate([2.7/2, 0, -lead_h])
-  cylinder(r=0.25, h=lead_h);
+  translate([-2.7/2, 0, -photo_sensor_lead_h])
+  cylinder(r=0.25, h=photo_sensor_lead_h);
+  translate([2.7/2, 0, -photo_sensor_lead_h])
+  cylinder(r=0.25, h=photo_sensor_lead_h);
   }
