@@ -11,7 +11,7 @@ motion_detector_pcb = [25.5, 35.7, 1.2];
 motion_detector_pcb_parts = [25, 35, 3];
 
 motion_detector_bracket_w=5;
-motion_detector_bracket_hole=0.75;
+motion_detector_bracket_hole=1.8/2;
 
 battery = [34, 52, 10];
 battery_z  = motion_detector_bottom_h + motion_detector_pcb[2] + motion_detector_pcb_parts[2] + 1;
@@ -19,8 +19,9 @@ battery_z  = motion_detector_bottom_h + motion_detector_pcb[2] + motion_detector
 feather = [23, 51, 12];
 feather_bracket_w = 4;
 feather_bracket_bottom_h = battery_z + battery[2] + 1;
-feather_bracket_hole = 0.75;
-feather_bracket_hole_from_edge = 2;
+feather_bracket_hole = 1.8/2;
+feather_bracket_hole_from_edge_a = 2.5;
+feather_bracket_hole_from_edge_b = 2;
 
 photo_sensor_rotation = [0, 0, 0];
 photo_sensor_offset = [0, feather[1]/2, 0];
@@ -40,7 +41,28 @@ module lid() {
   radius = diameter/2;
 
   difference() {
-    cylinder(r=radius, h=height);
+    union() {
+      cylinder(r=radius, h=height);
+
+    // motion sensor bracket
+    motion_detector_bracket_offset = motion_detector_diameter/2 + 0.5;
+    for(r = [0 : 180 : 180])
+      rotate([0, 0, r]) {
+        translate([-motion_detector_pcb[0]/2, motion_detector_bracket_offset, -motion_detector_bottom_h])
+          motion_detector_bracket();
+        // Feather bracket
+        translate([-feather[0]/2, -feather[1]/2, -feather_bracket_bottom_h]) {
+          if (r == 0) {
+            feather_bracket(feather_bracket_hole_from_edge_a);
+          } else {
+            feather_bracket(feather_bracket_hole_from_edge_b);
+          }
+        }
+        // joiner between parts for support
+        translate([-feather[0]/2, motion_detector_bracket_offset + motion_detector_bracket_w, -motion_detector_bottom_h])
+          cube([feather[0], feather[1]/2 - motion_detector_bracket_offset - motion_detector_bracket_w, motion_detector_bottom_h]);
+      }
+    }
 
     // lip inset
     translate([0, 0, -lip_height])
@@ -60,25 +82,14 @@ module lid() {
         cut_cylinder(r=photo_sensor_r + 0.25, h=height + smidge*2, cut = photo_sensor_cut);
         translate([0, 0, smidge])
         photo_resistor();
+
+        translate([0, 0, -feather_bracket_bottom_h-0.5-smidge])
+        cylinder(r=photo_sensor_r, h=feather_bracket_bottom_h+smidge);
       }
   }
-  // motion sensor bracket
-  motion_detector_bracket_offset = motion_detector_diameter/2 + 0.5;
-  for(r = [0 : 180 : 360])
-    rotate([0, 0, r]) {
-      translate([-motion_detector_pcb[0]/2, motion_detector_bracket_offset, -motion_detector_bottom_h])
-        motion_detector_bracket();
-      // Feather bracket
-      translate([-feather[0]/2, -feather[1]/2, -feather_bracket_bottom_h]) {
-        feather_bracket();
-      }
-      // joiner between parts for support
-      translate([-feather[0]/2, motion_detector_bracket_offset + motion_detector_bracket_w, -motion_detector_bottom_h])
-        cube([feather[0], feather[1]/2 - motion_detector_bracket_offset - motion_detector_bracket_w, motion_detector_bottom_h]);
-    }
 }
 
-module feather_bracket() {
+module feather_bracket(feather_bracket_hole_from_edge) {
     difference() {
       cube([feather[0], feather_bracket_w, feather_bracket_bottom_h ]);
       translate([feather_bracket_hole_from_edge, feather_bracket_w/2, -smidge])
