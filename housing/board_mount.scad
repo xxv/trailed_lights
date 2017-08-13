@@ -14,6 +14,9 @@ motion_detector_bracket_hole=0.75;
 
 feather = [23, 51, 12];
 feather_bracket_w = 4;
+feather_bracket_bottom_h = motion_detector_bottom_h + motion_detector_pcb[2] + 1;
+feather_bracket_hole=0.75;
+feather_bracket_hole_from_edge=2;
 
 photo_sensor_rotation = [0, 0, 0];
 photo_sensor_offset = [0, feather[1]/2, 0];
@@ -60,6 +63,21 @@ module lid() {
     motion_detector_bracket();
   translate([-motion_detector_pcb[0]/2, -motion_detector_diameter/2 - 0.5 - motion_detector_bracket_w, -motion_detector_bottom_h])
     motion_detector_bracket();
+  translate([-feather[0]/2,feather[1]/2-feather_bracket_w,-feather_bracket_bottom_h])
+    feather_bracket();
+  translate([-feather[0]/2,-feather[1]/2,-feather_bracket_bottom_h])
+    feather_bracket();
+}
+
+module feather_bracket() {
+    difference() {
+      cube([feather[0], feather_bracket_w, feather_bracket_bottom_h ]);
+      translate([feather_bracket_hole_from_edge, feather_bracket_w/2, -smidge])
+        cylinder(r=feather_bracket_hole, h=feather_bracket_bottom_h - 2);
+      translate([feather[0]-feather_bracket_hole_from_edge, feather_bracket_w/2, -smidge])
+        cylinder(r=feather_bracket_hole, h=feather_bracket_bottom_h - 2);
+    }
+
 }
 
 module motion_detector_bracket() {
@@ -81,8 +99,10 @@ module mockup() {
 
   // board
   color("blue")
-    translate([-feather[0]/2, -feather[1]/2, -feather[2] - motion_detector_bottom_h - motion_detector_pcb[2]])
+    translate([-feather[0]/2, -feather[1]/2, -feather_bracket_bottom_h-feather[2]])
     feather();
+
+  // glass
   % translate([0, 0, -121])
   difference() {
     cylinder(r=glass_diameter_outer/2, h=121);
