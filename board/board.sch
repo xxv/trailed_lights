@@ -698,4 +698,55 @@ NoConn ~ 10050 1500
 NoConn ~ 10050 1600
 NoConn ~ 10050 1700
 NoConn ~ 10050 1800
+Text Notes 5350 2700 0    31   ~ 0
+ESP8266 built-in\nRTC auto-reset
+Text Notes 5900 2700 0    31   ~ 0
+Generic external button
+Text Notes 6600 2700 0    31   ~ 0
+Ambient light sensor
+$Comp
+L CONN_01X03 J?
+U 1 1 5997A27F
+P 4450 1150
+F 0 "J?" H 4450 1350 50  0000 C CNN
+F 1 "GPWR" V 4550 1150 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 4450 1150 50  0001 C CNN
+F 3 "" H 4450 1150 50  0001 C CNN
+	1    4450 1150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5997A3C4
+P 4550 1650
+F 0 "#PWR?" H 4550 1400 50  0001 C CNN
+F 1 "GND" H 4550 1500 50  0000 C CNN
+F 2 "" H 4550 1650 50  0001 C CNN
+F 3 "" H 4550 1650 50  0001 C CNN
+	1    4550 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 1650 4550 1350
+$Comp
+L VCC #PWR?
+U 1 1 5997A698
+P 4150 1000
+F 0 "#PWR?" H 4150 850 50  0001 C CNN
+F 1 "VCC" H 4150 1150 50  0000 C CNN
+F 2 "" H 4150 1000 50  0001 C CNN
+F 3 "" H 4150 1000 50  0001 C CNN
+	1    4150 1000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 1000 4150 1350
+Wire Wire Line
+	4150 1350 4350 1350
+Wire Wire Line
+	4450 1350 4450 1650
+Text Label 4450 1650 1    60   ~ 0
+VBAT
+Wire Notes Line
+	4000 2750 4000 500 
 $EndSCHEMATC
