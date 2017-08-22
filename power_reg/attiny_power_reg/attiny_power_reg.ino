@@ -14,9 +14,8 @@ ISR(PCINT0_vect) {
  * Enable Pin Change Interrupt on given pin number.
  */
 void pciSetup(byte pin) {
-  *digitalPinToPCMSK(pin) |= bit (digitalPinToPCMSKbit(pin));  // enable pin
-  bitSet(GIFR, PCIF);
-  bitSet(GIMSK, PCIE);
+  bitSet(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin)); // enable pin
+  bitSet(*digitalPinToPCICR(pin), digitalPinToPCICRbit(pin)); // enable interrupt
 }
 
 /**
@@ -36,7 +35,8 @@ void sleepNow() {
   sleep_disable();
 
   // Disable PC interrupt
-  bitClear(GIMSK, PCIE);
+  bitClear(*digitalPinToPCICR(INTERRUPT_PIN),
+            digitalPinToPCICRbit(INTERRUPT_PIN));
 }
 
 void setup() {
