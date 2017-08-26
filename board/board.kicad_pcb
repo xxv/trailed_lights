@@ -3,7 +3,7 @@
   (general
     (links 49)
     (no_connects 0)
-    (area 102.17619 94.675 170.633334 128.975)
+    (area 111.709999 102.819999 162.610001 125.780001)
     (thickness 1.6)
     (drawings 21)
     (tracks 172)
@@ -641,11 +641,6 @@
       (net 18 /~ATY_RST))
     (pad 6 thru_hole oval (at 2.54 5.08 270) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
       (net 3 GND))
-    (model Pin_Headers.3dshapes/Pin_Header_Straight_2x03_Pitch2.54mm.wrl
-      (at (xyz 0.05 -0.1 0))
-      (scale (xyz 1 1 1))
-      (rotate (xyz 0 0 90))
-    )
   )
 
   (module Opto-Devices:Resistor_LDR_5.1x4.3_RM3.4 (layer F.Cu) (tedit 599A1ADF) (tstamp 597CF379)
