@@ -19,14 +19,20 @@ const static int BATTERY_VAL_HIGH = 956;
 
 static bool wake_on_rtc = true;
 
+volatile uint8_t trigger_source = 0;
 volatile bool triggered = false;
+volatile unsigned long triggered_time = 0;
 
 ISR(PCINT0_vect) {
   triggered = true;
+  trigger_source = ESP_RTC_PIN;
+  triggered_time = millis();
 }
 
 ISR(PCINT1_vect) {
   triggered = true;
+  trigger_source = INTERRUPT_PIN;
+  triggered_time = millis();
 }
 
 /**
@@ -45,13 +51,6 @@ void sleepNow() {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
 
-  // Enable PC interrupt
-  pciSetup(INTERRUPT_PIN);
-  pciSetup(EXT_WAKE_PIN);
-
-  if (wake_on_rtc) {
-    pciSetup(ESP_RTC_PIN);
-  }
 
   // -.- zzz...
   sleep_mode();
@@ -59,6 +58,21 @@ void sleepNow() {
   // !! O.O
   sleep_disable();
 
+  disable_interrupts();
+}
+
+void enable_interrupts() {
+  // Enable PC interrupt
+  pciSetup(INTERRUPT_PIN);
+  pciSetup(EXT_WAKE_PIN);
+  pinMode(EXT_WAKE_PIN, INPUT_PULLUP);
+
+  if (wake_on_rtc) {
+    pciSetup(ESP_RTC_PIN);
+  }
+}
+
+void disable_interrupts() {
   // Disable PC interrupt
   bitClear(*digitalPinToPCICR(INTERRUPT_PIN),
             digitalPinToPCICRbit(INTERRUPT_PIN));
@@ -83,14 +97,15 @@ void setup() {
   // Reset output is active low
   digitalWrite(ESP_RESET_PIN, HIGH);
 
-  pciSetup(INTERRUPT_PIN);
+  enable_interrupts();
 }
 
 void loop() {
-  if (triggered) {
+  if (triggered && (millis() - triggered_time) > 50) {
     // only handle trigger on risen edge
-    if (digitalRead(INTERRUPT_PIN) || digitalRead(EXT_WAKE_PIN)
-        || !digitalRead(ESP_RTC_PIN)) {
+    if ((trigger_source == INTERRUPT_PIN
+         && ((digitalRead(INTERRUPT_PIN) || !digitalRead(EXT_WAKE_PIN))))
+        || (trigger_source == ESP_RTC_PIN && !digitalRead(ESP_RTC_PIN))) {
       digitalWrite(ESP_RESET_PIN, LOW);
       delay(RESET_TIME);
       digitalWrite(ESP_RESET_PIN, HIGH);
@@ -98,7 +113,9 @@ void loop() {
     }
 
     triggered = false;
+    enable_interrupts();
+    sleepNow();
   }
 
-  sleepNow();
+  delay(1);
 }
