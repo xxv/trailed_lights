@@ -105,7 +105,7 @@ void reconnect() {
   while (!client.connected()) {
     // Create a random client ID
     String clientId = "lantern-";
-    clientId += String(random(0xffff), HEX);
+    clientId += device_id;
 
     bool connected;
     if (strlen(mqtt_user) == 0) {
