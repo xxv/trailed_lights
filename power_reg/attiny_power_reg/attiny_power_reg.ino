@@ -1,6 +1,6 @@
 #include <avr/sleep.h>
 
-// Pin mapping
+// Pin mapping (Arduino pin numbers)
 const static byte BAT_MON_PIN   = A0;
 const static byte ESP_RESET_PIN = 9;
 const static byte ESP_RTC_PIN   = 1;
@@ -50,7 +50,6 @@ void pciSetup(byte pin) {
 void sleepNow() {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
-
 
   // -.- zzz...
   sleep_mode();
