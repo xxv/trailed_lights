@@ -1,13 +1,13 @@
 #include <avr/sleep.h>
-#include <TinyWireS.h>
+//#include <TinyWireS.h>
 
 // Pin mapping (Arduino pin numbers)
 const static byte BAT_MON_PIN   = A0;
 const static byte AMBIENT_PIN   = A2;
-const static byte ESP_RESET_PIN = 9;
-const static byte ESP_RTC_PIN   = 1;
-const static byte EXT_WAKE_PIN  = 10;
-const static byte INTERRUPT_PIN = 8;
+const static byte ESP_RESET_PIN = PIN_B1;
+const static byte ESP_RTC_PIN   = PIN_A1;
+const static byte EXT_WAKE_PIN  = PIN_B0;
+const static byte MOTION_PIN    = PIN_B2;
 
 const static byte MY_I2C_ADDR = 0x50;
 
@@ -25,6 +25,13 @@ const static int AMBIENT_VAL_ON   = 200; // 1.0v
 const static int AMBIENT_VAL_OFF  = 100; // 1.0v
 
 static bool wake_on_rtc = true;
+static bool wake_on_motion = true;
+static bool wake_on_external = true;
+
+bool is_dark = true;
+uint8_t last_motion = 0xff;
+uint8_t last_ext_wake = 0xff;
+uint8_t last_esp_reset = 0xff;
 
 volatile uint8_t trigger_source = 0;
 volatile bool triggered = false;
@@ -32,13 +39,11 @@ volatile unsigned long triggered_time = 0;
 
 ISR(PCINT0_vect) {
   triggered = true;
-  trigger_source = ESP_RTC_PIN;
   triggered_time = millis();
 }
 
 ISR(PCINT1_vect) {
   triggered = true;
-  trigger_source = INTERRUPT_PIN;
   triggered_time = millis();
 }
 
@@ -46,7 +51,6 @@ ISR(PCINT1_vect) {
  * Enable Pin Change Interrupt on given pin number.
  */
 void pciSetup(byte pin) {
-  pinMode(pin, INPUT);
   bitSet(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin)); // enable pin
   bitSet(*digitalPinToPCICR(pin), digitalPinToPCICRbit(pin)); // enable interrupt
 }
@@ -69,9 +73,14 @@ void sleepNow() {
 
 void enable_interrupts() {
   // Enable PC interrupt
-  pciSetup(INTERRUPT_PIN);
-  pciSetup(EXT_WAKE_PIN);
-  pinMode(EXT_WAKE_PIN, INPUT_PULLUP);
+  if (wake_on_motion) {
+    pciSetup(MOTION_PIN);
+  }
+
+  if (wake_on_external) {
+    pciSetup(EXT_WAKE_PIN);
+    pinMode(EXT_WAKE_PIN, INPUT_PULLUP);
+  }
 
   if (wake_on_rtc) {
     pciSetup(ESP_RTC_PIN);
@@ -80,10 +89,15 @@ void enable_interrupts() {
 
 void disable_interrupts() {
   // Disable PC interrupt
-  bitClear(*digitalPinToPCICR(INTERRUPT_PIN),
-            digitalPinToPCICRbit(INTERRUPT_PIN));
-  bitClear(*digitalPinToPCICR(EXT_WAKE_PIN),
-            digitalPinToPCICRbit(EXT_WAKE_PIN));
+  if (wake_on_motion) {
+    bitClear(*digitalPinToPCICR(MOTION_PIN),
+              digitalPinToPCICRbit(MOTION_PIN));
+  }
+
+  if (wake_on_external) {
+    bitClear(*digitalPinToPCICR(EXT_WAKE_PIN),
+              digitalPinToPCICRbit(EXT_WAKE_PIN));
+  }
 
   if (wake_on_rtc) {
     bitClear(*digitalPinToPCICR(ESP_RTC_PIN),
@@ -109,17 +123,21 @@ void onRequest() {
 
 }
 
-void blink() {
-    digitalWrite(ESP_RESET_PIN, LOW);
-    delay(50);
-    digitalWrite(ESP_RESET_PIN, HIGH);
-    delay(50);
+void wake_esp() {
+      digitalWrite(ESP_RESET_PIN, LOW);
+      delay(RESET_TIME);
+      digitalWrite(ESP_RESET_PIN, HIGH);
+      delay(RESET_TIME);
 }
 
 void setup() {
   pinMode(ESP_RESET_PIN, OUTPUT);
   pinMode(AMBIENT_PIN, INPUT);
   pinMode(BAT_MON_PIN, INPUT);
+
+  pinMode(MOTION_PIN, INPUT);
+  pinMode(EXT_WAKE_PIN, INPUT);
+  pinMode(ESP_RTC_PIN, INPUT);
 /*
   TinyWireS.begin(MY_I2C_ADDR);
   TinyWireS.onReceive(onReceive);
@@ -128,39 +146,36 @@ void setup() {
   // Reset output is active low
   digitalWrite(ESP_RESET_PIN, HIGH);
 
- // enable_interrupts();
- blink();
- blink();
+  enable_interrupts();
 }
 
 
 void loop() {
-/*
   if (triggered && (millis() - triggered_time) > 50) {
     // only handle trigger on risen edge
-    if ((trigger_source == INTERRUPT_PIN
-         && ((digitalRead(INTERRUPT_PIN) || !digitalRead(EXT_WAKE_PIN))))
-        || (trigger_source == ESP_RTC_PIN && !digitalRead(ESP_RTC_PIN))) {
-      digitalWrite(ESP_RESET_PIN, LOW);
-      tws_delay(RESET_TIME);
-      digitalWrite(ESP_RESET_PIN, HIGH);
-      tws_delay(RESET_TIME);
+    uint8_t motion_val = !digitalRead(MOTION_PIN);
+    uint8_t ext_wake_val = digitalRead(EXT_WAKE_PIN);
+    uint8_t esp_reset_val = digitalRead(ESP_RESET_PIN);
+    if (is_dark &&
+        ((motion_val != last_motion && last_motion)
+          || (ext_wake_val  != last_ext_wake  && ext_wake_val)
+          || (esp_reset_val != last_esp_reset && esp_reset_val))) {
+        wake_esp();
     }
 
     triggered = false;
     enable_interrupts();
-    sleepNow();
+    last_ext_wake = ext_wake_val;
+    last_esp_reset = esp_reset_val;
+    last_motion = motion_val;
   }
-  */
-
 
   int ambient = getAmbient();
-  bool currentStatus = digitalRead(ESP_RESET_PIN);
 
-  if (!currentStatus && ambient >= AMBIENT_VAL_ON) {
-    digitalWrite(ESP_RESET_PIN, HIGH);
-  } else if (currentStatus && ambient <= AMBIENT_VAL_OFF) {
-    digitalWrite(ESP_RESET_PIN, LOW);
+  if (!is_dark && ambient >= AMBIENT_VAL_ON) {
+    is_dark = true;
+  } else if (is_dark && ambient <= AMBIENT_VAL_OFF) {
+    is_dark = false;
   }
 
   //TinyWireS_stop_check();
