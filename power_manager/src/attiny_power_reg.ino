@@ -1,5 +1,5 @@
 #include <avr/sleep.h>
-//#include <TinyWireS.h>
+#include <TinyWireS.h>
 
 // Pin mapping (Arduino pin numbers)
 const static byte BAT_MON_PIN   = A0;
@@ -10,6 +10,8 @@ const static byte EXT_WAKE_PIN  = PIN_B0;
 const static byte MOTION_PIN    = PIN_B2;
 
 const static byte MY_I2C_ADDR = 0x50;
+const static byte REG_BATTERY_LEVEL = 0x01;
+const static byte REG_AMBIENT_LEVEL = 0x02;
 
 // timings
 const static byte RESET_TIME    = 100;
@@ -32,6 +34,7 @@ bool is_dark = true;
 uint8_t last_motion = 0xff;
 uint8_t last_ext_wake = 0xff;
 uint8_t last_esp_reset = 0xff;
+uint8_t current_register = 0;
 
 volatile uint8_t trigger_source = 0;
 volatile bool triggered = false;
@@ -109,6 +112,10 @@ int getAmbient() {
   return analogRead(AMBIENT_PIN);
 }
 
+uint8_t getAmbientByte() {
+  return map(analogRead(AMBIENT_PIN), 0, 1023, 0, 255);
+}
+
 uint8_t getBattery() {
   return constrain(map(analogRead(BAT_MON_PIN),
                        BATTERY_VAL_LOW, BATTERY_VAL_HIGH, 0, 100),
@@ -116,18 +123,33 @@ uint8_t getBattery() {
 }
 
 void onReceive(uint8_t num_bytes) {
+  if (num_bytes == 0) {
+    return;
+  }
 
+  current_register = TinyWireS.receive();
+  num_bytes--;
+
+  for (; num_bytes > 0; num_bytes--) {
+    TinyWireS.receive();
+  }
 }
 
 void onRequest() {
+  if (current_register == REG_BATTERY_LEVEL) {
+    TinyWireS.send(getBattery());
+  } else if (current_register == REG_AMBIENT_LEVEL) {
+    TinyWireS.send(getAmbientByte());
+  }
 
+  current_register = 0;
 }
 
 void wake_esp() {
-      digitalWrite(ESP_RESET_PIN, LOW);
-      delay(RESET_TIME);
-      digitalWrite(ESP_RESET_PIN, HIGH);
-      delay(RESET_TIME);
+  digitalWrite(ESP_RESET_PIN, LOW);
+  tws_delay(RESET_TIME);
+  digitalWrite(ESP_RESET_PIN, HIGH);
+  tws_delay(RESET_TIME);
 }
 
 void setup() {
@@ -148,7 +170,6 @@ void setup() {
 
   enable_interrupts();
 }
-
 
 void loop() {
   if (triggered && (millis() - triggered_time) > 50) {
@@ -178,6 +199,5 @@ void loop() {
     is_dark = false;
   }
 
-  //TinyWireS_stop_check();
-  delay(10);
+  TinyWireS_stop_check();
 }
