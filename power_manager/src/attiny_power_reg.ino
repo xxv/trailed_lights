@@ -160,11 +160,11 @@ void setup() {
   pinMode(MOTION_PIN, INPUT);
   pinMode(EXT_WAKE_PIN, INPUT);
   pinMode(ESP_RTC_PIN, INPUT);
-/*
+
   TinyWireS.begin(MY_I2C_ADDR);
   TinyWireS.onReceive(onReceive);
   TinyWireS.onRequest(onRequest);
-*/
+
   // Reset output is active low
   digitalWrite(ESP_RESET_PIN, HIGH);
 
