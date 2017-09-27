@@ -36,7 +36,7 @@ CRGB leds[NUM_LEDS];
 CRGB prev_leds[NUM_LEDS];
 CRGB next_leds[NUM_LEDS];
 
-fract8 color_fade = 0xff;
+fract8 color_fade = 0;
 
 uint8_t mac[WL_MAC_ADDR_LENGTH];
 char device_id[9];
@@ -91,6 +91,7 @@ void restoreLedState() {
 
   restoreLedsFromState(leds);
   restoreLedsFromState(next_leds);
+  restoreLedsFromState(prev_leds);
 }
 
 void snapshotLeds() {
@@ -208,6 +209,12 @@ void loop() {
       for (uint8_t i = 0; i < NUM_LEDS; i++) {
         leds[i] = prev_leds[i].lerp8(next_leds[i], color_fade);
       }
+
+      // Do this once the color has settled in case there's a stray board reset
+      if (color_fade == 0xff) {
+        saveLedState();
+      }
+
       FastLED.show();
     }
   }
