@@ -9,12 +9,17 @@
 #include <FastLED.h>
 #include <Ticker.h>
 #include <PubSubClient.h>
+#include <Wire.h>
 
 enum DeviceMode {
   booting = 0,
   normal,
   wifi_setup
 };
+
+const static byte POWER_MANAGER_ADDR = 0x50;
+const static byte REG_BATTERY_LEVEL = 0x01;
+const static byte REG_AMBIENT_LEVEL = 0x02;
 
 #define STATUS_LED 0
 #define NUM_LEDS 2
@@ -34,13 +39,26 @@ char lantern_id[18];
 char lantern_id_all[20];
 char lantern_id_motion[24];
 char lantern_id_status[24];
+char lantern_id_battery[25];
 char color_hex[7];
 
 DeviceMode device_mode = booting;
 
 void configModeCallback(WiFiManager *myWiFiManager) {
   device_mode = wifi_setup;
-  FastLED.showColor(CRGB::Yellow);
+  leds[0] = CRGB::Yellow;
+  leds[0].nscale8(127);
+
+  FastLED.show();
+}
+
+uint8_t getBattery() {
+  Wire.beginTransmission(POWER_MANAGER_ADDR);
+  Wire.write(REG_BATTERY_LEVEL);
+  Wire.endTransmission();
+  Wire.requestFrom(POWER_MANAGER_ADDR, 1);
+
+  return Wire.read();
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
@@ -61,11 +79,16 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   } else if (strcmp("sleep", subpath) == 0) {
     long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
     ESP.deepSleep(sleepTimeMs * 1000);
+  } else if (strcmp("status_query", subpath) == 0) {
+    char* battery_level = "1000";
+    sprintf(battery_level, "%d", getBattery());
+    client.publish(lantern_id_battery, battery_level);
   }
 }
 
 void setup() {
   Serial.begin(115200);
+  Wire.begin();
   pinMode(STATUS_LED, OUTPUT);
   digitalWrite(STATUS_LED, 1); // LED off
 
@@ -89,6 +112,7 @@ void setup() {
   sprintf(lantern_id_all, "lantern/%s/#", device_id);
   sprintf(lantern_id_motion, "lantern/%s/motion", device_id);
   sprintf(lantern_id_status, "lantern/%s/status", device_id);
+  sprintf(lantern_id_battery, "lantern/%s/battery", device_id);
 
   randomSeed(micros());
 
