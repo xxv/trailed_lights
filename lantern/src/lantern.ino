@@ -33,6 +33,11 @@ WiFiClientSecure wifi;
 PubSubClient client(wifi);
 
 CRGB leds[NUM_LEDS];
+CRGB prev_leds[NUM_LEDS];
+CRGB next_leds[NUM_LEDS];
+
+fract8 color_fade = 0xff;
+
 uint8_t mac[WL_MAC_ADDR_LENGTH];
 char device_id[9];
 char lantern_id[18];
@@ -61,6 +66,44 @@ uint8_t getBattery() {
   return Wire.read();
 }
 
+byte rtc_state[NUM_LEDS * 3];
+
+void saveLedState() {
+  for (uint8_t i = 0; i < NUM_LEDS; i++) {
+    memcpy(&rtc_state[i * 3], leds[i].raw, 3);
+  }
+
+  if (!system_rtc_mem_write(70, rtc_state, sizeof(rtc_state))) {
+    Serial.println("Could not write LED state to RTC");
+  }
+}
+
+void restoreLedsFromState(CRGB* arr) {
+  for (uint8_t i = 0; i < NUM_LEDS; i++) {
+    memcpy(arr[i].raw, &rtc_state[i * 3], 3);
+  }
+}
+
+void restoreLedState() {
+  if (!system_rtc_mem_read(70, rtc_state, sizeof(rtc_state))) {
+    Serial.println("Could not read LED state from RTC");
+  }
+
+  restoreLedsFromState(leds);
+  restoreLedsFromState(next_leds);
+}
+
+void snapshotLeds() {
+    prev_leds[0] = leds[0];
+    prev_leds[1] = leds[1];
+    color_fade = 0;
+}
+
+void beginSleep(long sleepTimeMs) {
+  saveLedState();
+  ESP.deepSleep(sleepTimeMs * 1000);
+}
+
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   std::string payload_str ((char *)payload, length);
 
@@ -70,15 +113,15 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.flush();
   if (strcmp("color", subpath) == 0) {
     payload_str.replace(0, 1, "0x");
-    leds[0] = strtoul(payload_str.c_str(), nullptr, 16);
-    FastLED.show();
+    snapshotLeds();
+    next_leds[0] = strtoul(payload_str.c_str(), nullptr, 16);
   } else if (strcmp("white", subpath) == 0) {
     payload_str.replace(0, 1, "0x");
-    leds[1] = strtoul(payload_str.c_str(), nullptr, 16);
-    FastLED.show();
+    snapshotLeds();
+    next_leds[1] = strtoul(payload_str.c_str(), nullptr, 16);
   } else if (strcmp("sleep", subpath) == 0) {
     long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
-    ESP.deepSleep(sleepTimeMs * 1000);
+    beginSleep(sleepTimeMs);
   } else if (strcmp("status_query", subpath) == 0) {
     char* battery_level = "1000";
     sprintf(battery_level, "%d", getBattery());
@@ -93,6 +136,7 @@ void setup() {
   digitalWrite(STATUS_LED, 1); // LED off
 
   FastLED.addLeds<APA102, MOSI, SCK, BGR>(leds, NUM_LEDS);
+  FastLED.setDither(0);
 
   wifiManager.setAPCallback(configModeCallback);
 
@@ -105,6 +149,8 @@ void setup() {
     device_mode = normal;
     FastLED.showColor(CRGB::Black);
   }
+
+  restoreLedState();
 
   WiFi.macAddress(mac);
   sprintf(device_id, "%02x%02x%02x%02x", mac[2], mac[3], mac[4], mac[5]);
@@ -154,4 +200,15 @@ void loop() {
   }
 
   client.loop();
+
+  EVERY_N_MILLIS(5) {
+    if (color_fade < 0xff) {
+      color_fade += 1;
+
+      for (uint8_t i = 0; i < NUM_LEDS; i++) {
+        leds[i] = prev_leds[i].lerp8(next_leds[i], color_fade);
+      }
+      FastLED.show();
+    }
+  }
 }
