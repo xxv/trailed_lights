@@ -57,13 +57,47 @@ void configModeCallback(WiFiManager *myWiFiManager) {
   FastLED.show();
 }
 
-uint8_t getBattery() {
-  Wire.beginTransmission(POWER_MANAGER_ADDR);
-  Wire.write(REG_BATTERY_LEVEL);
-  Wire.endTransmission();
-  Wire.requestFrom(POWER_MANAGER_ADDR, 1);
+uint8_t getPMRegister(uint8_t reg) {
+  Serial.print("Requesting power manager register ");
+  Serial.println(reg);
 
-  return Wire.read();
+  Wire.beginTransmission(POWER_MANAGER_ADDR);
+  Wire.write(reg);
+  int result = Wire.endTransmission();
+
+  if (result) {
+    Serial.print("Error requesting register: ");
+    Serial.println(result);
+
+    return 0;
+  }
+
+  uint8_t gotBytes = Wire.requestFrom(POWER_MANAGER_ADDR, (uint8_t)1);
+  Serial.print("Received: ");
+  Serial.println(gotBytes);
+  uint8_t value;
+
+  while(Wire.available()) {
+    value = Wire.read();
+    Serial.print(value);
+    Serial.print(", ");
+  }
+  Serial.println();
+
+  Serial.print("Last byte: ");
+  Serial.println(value);
+
+  Wire.endTransmission();
+
+  return value;
+}
+
+uint8_t getAmbient() {
+  return getPMRegister(REG_AMBIENT_LEVEL);
+}
+
+uint8_t getBattery() {
+  return getPMRegister(REG_BATTERY_LEVEL);
 }
 
 byte rtc_state[NUM_LEDS * 3];
@@ -110,8 +144,6 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   char* subpath = topic + strlen(lantern_id) + 1;
 
-  Serial.printf("Subtopic: %s\n", subpath);
-  Serial.flush();
   if (strcmp("color", subpath) == 0) {
     payload_str.replace(0, 1, "0x");
     snapshotLeds();
