@@ -1,5 +1,5 @@
 #include <avr/sleep.h>
-#include <TinyWireS.h>
+#include <WireS.h>
 
 // Pin mapping (Arduino pin numbers)
 const static byte BAT_MON_PIN   = A0;
@@ -122,24 +122,24 @@ uint8_t getBattery() {
                    0, 100);
 }
 
-void onReceive(uint8_t num_bytes) {
+void onReceive(size_t num_bytes) {
   if (num_bytes == 0) {
     return;
   }
 
-  current_register = TinyWireS.receive();
+  current_register = Wire.read();
   num_bytes--;
 
-  for (; num_bytes > 0; num_bytes--) {
-    TinyWireS.receive();
+  while (Wire.available()) {
+    Wire.read();
   }
 }
 
 void onRequest() {
   if (current_register == REG_BATTERY_LEVEL) {
-    TinyWireS.send(getBattery());
+    Wire.write(getBattery());
   } else if (current_register == REG_AMBIENT_LEVEL) {
-    TinyWireS.send(getAmbientByte());
+    Wire.write(getAmbientByte());
   }
 
   current_register = 0;
@@ -147,9 +147,9 @@ void onRequest() {
 
 void wake_esp() {
   digitalWrite(ESP_RESET_PIN, LOW);
-  tws_delay(RESET_TIME);
+  delay(RESET_TIME);
   digitalWrite(ESP_RESET_PIN, HIGH);
-  tws_delay(RESET_TIME);
+  delay(RESET_TIME);
 }
 
 void setup() {
@@ -161,9 +161,9 @@ void setup() {
   pinMode(EXT_WAKE_PIN, INPUT);
   pinMode(ESP_RTC_PIN, INPUT);
 
-  TinyWireS.begin(MY_I2C_ADDR);
-  TinyWireS.onReceive(onReceive);
-  TinyWireS.onRequest(onRequest);
+  Wire.begin(MY_I2C_ADDR);
+  Wire.onReceive(onReceive);
+  Wire.onRequest(onRequest);
 
   // Reset output is active low
   digitalWrite(ESP_RESET_PIN, HIGH);
@@ -198,6 +198,5 @@ void loop() {
   } else if (is_dark && ambient <= AMBIENT_VAL_OFF) {
     is_dark = false;
   }
-
-  TinyWireS_stop_check();
+  delay(10);
 }
