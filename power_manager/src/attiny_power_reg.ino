@@ -12,6 +12,7 @@ const static byte MOTION_PIN    = PIN_B2;
 const static byte MY_I2C_ADDR = 0x50;
 const static byte REG_BATTERY_LEVEL = 0x01;
 const static byte REG_AMBIENT_LEVEL = 0x02;
+const static byte REG_TEST = 0x03;
 
 // timings
 const static byte RESET_TIME    = 100;
@@ -35,6 +36,8 @@ uint8_t last_motion = 0xff;
 uint8_t last_ext_wake = 0xff;
 uint8_t last_esp_reset = 0xff;
 uint8_t current_register = 0;
+
+uint8_t test_value = 0;
 
 volatile uint8_t trigger_source = 0;
 volatile bool triggered = false;
@@ -140,6 +143,8 @@ void onRequest() {
     Wire.write(getBattery());
   } else if (current_register == REG_AMBIENT_LEVEL) {
     Wire.write(getAmbientByte());
+  } else if (current_register == REG_TEST) {
+    Wire.write(test_value++);
   }
 
   current_register = 0;
