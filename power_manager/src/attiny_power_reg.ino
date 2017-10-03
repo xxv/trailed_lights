@@ -131,7 +131,6 @@ void onReceive(size_t num_bytes) {
   }
 
   current_register = Wire.read();
-  num_bytes--;
 
   while (Wire.available()) {
     Wire.read();
