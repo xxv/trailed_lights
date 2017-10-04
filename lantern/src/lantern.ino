@@ -44,7 +44,7 @@ char lantern_id[18];
 char lantern_id_all[20];
 char lantern_id_motion[24];
 char lantern_id_status[24];
-char lantern_id_battery[25];
+char lantern_id_ambient[25];
 char color_hex[7];
 
 DeviceMode device_mode = booting;
@@ -156,9 +156,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
     beginSleep(sleepTimeMs);
   } else if (strcmp("status_query", subpath) == 0) {
-    char* battery_level = "1000";
-    sprintf(battery_level, "%d", getBattery());
-    client.publish(lantern_id_battery, battery_level);
+    updatePowerManagerStatus();
+    char format_str[64];
+    sprintf(format_str, "{\"ambient\":%d,\"battery\":%d}", getAmbient(), getBattery());
+    client.publish(lantern_id_ambient, format_str);
   }
 }
 
@@ -191,7 +192,7 @@ void setup() {
   sprintf(lantern_id_all, "lantern/%s/#", device_id);
   sprintf(lantern_id_motion, "lantern/%s/motion", device_id);
   sprintf(lantern_id_status, "lantern/%s/status", device_id);
-  sprintf(lantern_id_battery, "lantern/%s/battery", device_id);
+  sprintf(lantern_id_ambient, "lantern/%s/ambient", device_id);
 
   randomSeed(micros());
 
