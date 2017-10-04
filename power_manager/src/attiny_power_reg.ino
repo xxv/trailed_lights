@@ -22,8 +22,8 @@ const static byte CMD_SET_RTC_EN = 0x72;
 const static byte CMD_SLEEP_NOW  = 0x7A;
 
 // Calibrations
-const static int BATTERY_VAL_LOW  = 718;
-const static int BATTERY_VAL_HIGH = 956;
+const static int BATTERY_VAL_LOW  = 312;
+const static int BATTERY_VAL_HIGH = 370;
 const static int AMBIENT_VAL_ON   = 200; // 1.0v
 const static int AMBIENT_VAL_OFF  = 100; // 1.0v
 
