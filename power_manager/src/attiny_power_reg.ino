@@ -35,9 +35,9 @@ bool is_dark = true;
 uint8_t last_motion = 0xff;
 uint8_t last_ext_wake = 0xff;
 uint8_t last_esp_reset = 0xff;
-uint8_t current_register = 0;
+volatile uint8_t current_register = 0;
 
-uint8_t test_value = 0;
+volatile uint8_t test_value = 0;
 
 volatile uint8_t trigger_source = 0;
 volatile bool triggered = false;
