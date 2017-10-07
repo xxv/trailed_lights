@@ -28,7 +28,7 @@ const static uint8_t STATUS_LED = 0;
 const static uint8_t NUM_LEDS = 2;
 
 // the number of seconds of no motion until lantern sleeps
-const static uint8_t MOTION_TIMEOUT_S = 5;
+const static uint8_t DEFAULT_MOTION_TIMEOUT_S = 5;
 
 const static byte RTC_FINGERPRINT[] = { 'l', 'n' };
 
@@ -51,12 +51,15 @@ char lantern_id_all[20];
 char lantern_id_motion[24];
 char lantern_id_status[24];
 char lantern_id_sensors[25];
-char color_hex[7];
 
+// MQTT-Configurable parameters
+int motion_timeout_s = DEFAULT_MOTION_TIMEOUT_S;
+
+// Transient state
 uint8_t ambient = 0;
 uint8_t battery = 0;
 bool is_motion = false;
-uint8_t no_motion_since_s = 0;
+int no_motion_since_s = 0;
 
 byte rtc_state[sizeof(RTC_FINGERPRINT) + NUM_LEDS * 3];
 
@@ -216,6 +219,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     beginSleep(sleepTimeMs);
   } else if (strcmp("status_query", subpath) == 0) {
     publishSensorStatus();
+  } else if (strcmp("lanterns/motion_timeout", topic) == 0) {
+    motion_timeout_s = strtol(payload_str.c_str(), nullptr, 10);
   }
 }
 
@@ -278,6 +283,7 @@ void reconnect() {
       // Once connected, publish an announcement...
       client.publish(lantern_id_status, "online", 1);
       client.subscribe(lantern_id_all);
+      client.subscribe("lanterns/#");
       client.publish(lantern_id_motion, "");
     } else {
       digitalWrite(STATUS_LED, 0);
@@ -324,7 +330,7 @@ void loop() {
     Serial.println(no_motion_since_s);
   }
 
-  if (no_motion_since_s >= MOTION_TIMEOUT_S) {
+  if (no_motion_since_s >= motion_timeout_s) {
     beginSleep(0);
   }
 }
