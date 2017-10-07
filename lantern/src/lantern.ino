@@ -17,9 +17,11 @@ enum DeviceMode {
   wifi_setup
 };
 
-const static byte POWER_MANAGER_ADDR = 0x50;
-const static byte REG_BATTERY_LEVEL = 0x01;
-const static byte REG_AMBIENT_LEVEL = 0x02;
+const static byte POWER_MANAGER_ADDR    = 0x50;
+const static byte REG_GET_BATTERY_LEVEL = 0x01;
+const static byte REG_GET_AMBIENT_LEVEL = 0x02;
+const static byte REG_GET_MOTION        = 0x03;
+const static byte REG_SET_ESP_ASLEEP    = 0x04;
 
 #define STATUS_LED 0
 #define NUM_LEDS 2
@@ -47,6 +49,12 @@ char lantern_id_status[24];
 char lantern_id_ambient[25];
 char color_hex[7];
 
+uint8_t ambient = 0;
+uint8_t battery = 0;
+bool is_motion = false;
+uint8_t no_motion_since_s = 0;
+const static uint8_t MOTION_TIMEOUT_S = 5;
+
 DeviceMode device_mode = booting;
 
 void configModeCallback(WiFiManager *myWiFiManager) {
@@ -57,6 +65,33 @@ void configModeCallback(WiFiManager *myWiFiManager) {
   FastLED.show();
 }
 
+/**
+ * Set the given power manager register to the supplied value.
+ */
+bool setPMRegister(uint8_t reg, uint8_t value) {
+  uint8_t buff[2];
+  Serial.print("Setting power manager register ");
+  Serial.println(reg);
+
+  Wire.beginTransmission(POWER_MANAGER_ADDR);
+  buff[0] = reg;
+  buff[1] = value;
+  Wire.write(buff, 2);
+  int result = Wire.endTransmission();
+
+  if (result) {
+    Serial.print("Error setting register: ");
+    Serial.println(result);
+
+    return false;
+  }
+
+  return value;
+}
+
+/**
+ * Retrieve the given power manager register value.
+ */
 uint8_t getPMRegister(uint8_t reg) {
   Serial.print("Requesting power manager register ");
   Serial.println(reg);
@@ -93,11 +128,15 @@ uint8_t getPMRegister(uint8_t reg) {
 }
 
 uint8_t getAmbient() {
-  return getPMRegister(REG_AMBIENT_LEVEL);
+  return getPMRegister(REG_GET_AMBIENT_LEVEL);
 }
 
 uint8_t getBattery() {
-  return getPMRegister(REG_BATTERY_LEVEL);
+  return getPMRegister(REG_GET_BATTERY_LEVEL);
+}
+
+bool getMotion() {
+  return getPMRegister(REG_GET_MOTION);
 }
 
 byte rtc_state[NUM_LEDS * 3];
@@ -135,7 +174,9 @@ void snapshotLeds() {
 }
 
 void beginSleep(long sleepTimeMs) {
+  Serial.println("Sleeping now");
   saveLedState();
+  setPMRegister(REG_SET_ESP_ASLEEP, true);
   ESP.deepSleep(sleepTimeMs * 1000);
 }
 
@@ -156,9 +197,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
     beginSleep(sleepTimeMs);
   } else if (strcmp("status_query", subpath) == 0) {
-    updatePowerManagerStatus();
     char format_str[64];
-    sprintf(format_str, "{\"ambient\":%d,\"battery\":%d}", getAmbient(), getBattery());
+    sprintf(format_str, "{\"ambient\":%d,\"battery\":%d}", ambient, battery);
     client.publish(lantern_id_ambient, format_str);
   }
 }
@@ -251,5 +291,23 @@ void loop() {
 
       FastLED.show();
     }
+  }
+
+  EVERY_N_SECONDS(1) {
+    ambient = getAmbient();
+    battery = getBattery();
+    is_motion = getMotion();
+
+    if (is_motion) {
+      no_motion_since_s = 0;
+    } else {
+      no_motion_since_s++;
+    }
+    Serial.print("No motion since: ");
+    Serial.println(no_motion_since_s);
+  }
+
+  if (no_motion_since_s >= MOTION_TIMEOUT_S) {
+    beginSleep(0);
   }
 }
