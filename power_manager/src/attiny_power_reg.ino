@@ -28,8 +28,8 @@ const static byte CMD_SLEEP_NOW  = 0x7A;
 const static int BATTERY_VAL_LOW  = 312;
 const static int BATTERY_VAL_HIGH = 370;
 // Brighter than this and it won't wake the ESP
-const static int AMBIENT_VAL_OFF  = 100;
-const static int AMBIENT_VAL_ON   = 50;
+const static int AMBIENT_VAL_BRIGHT = 100;
+const static int AMBIENT_VAL_DARK   = 50;
 
 static bool wake_on_rtc = true;
 static bool wake_on_motion = true;
@@ -44,6 +44,9 @@ volatile uint8_t current_register = 0;
 
 volatile bool triggered = false;
 volatile unsigned long triggered_time = 0;
+
+volatile uint8_t battery;
+volatile int ambient;
 
 ISR(PCINT0_vect) {
   triggered = true;
@@ -117,8 +120,8 @@ int getAmbient() {
   return analogRead(AMBIENT_PIN);
 }
 
-uint8_t getAmbientByte() {
-  return map(analogRead(AMBIENT_PIN), 0, 1023, 0, 255);
+uint8_t scaleAnalogReadToByte(int read) {
+  return map(read, 0, 1023, 0, 255);
 }
 
 uint8_t getBattery() {
@@ -150,9 +153,9 @@ void onReceive(size_t num_bytes) {
 
 void onRequest() {
   if (current_register == REG_GET_BATTERY_LEVEL) {
-    Wire.write(getBattery());
+    Wire.write(battery);
   } else if (current_register == REG_GET_AMBIENT_LEVEL) {
-    Wire.write(getAmbientByte());
+    Wire.write(scaleAnalogReadToByte(ambient));
   } else if (current_register == REG_GET_MOTION) {
     Wire.write(last_motion);
   }
@@ -187,6 +190,15 @@ void setup() {
 }
 
 void loop() {
+  battery = getBattery();
+  ambient = getAmbient();
+
+  if (is_dark && ambient >= AMBIENT_VAL_BRIGHT) {
+    is_dark = false;
+  } else if (!is_dark && ambient <= AMBIENT_VAL_DARK) {
+    is_dark = true;
+  }
+
   if (triggered && (millis() - triggered_time) > DEBOUNCE_TIME_MS) {
     // only handle trigger on risen edge
     uint8_t motion_val = !digitalRead(MOTION_PIN);
@@ -206,14 +218,6 @@ void loop() {
     last_ext_wake = ext_wake_val;
     last_esp_reset = esp_reset_val;
     last_motion = motion_val;
-  }
-
-  int ambient = getAmbient();
-
-  if (is_dark && ambient >= AMBIENT_VAL_OFF) {
-    is_dark = false;
-  } else if (!is_dark && ambient <= AMBIENT_VAL_ON) {
-    is_dark = true;
   }
 
   delay(10);
