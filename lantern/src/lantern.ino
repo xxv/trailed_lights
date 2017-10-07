@@ -23,10 +23,14 @@ const static byte REG_GET_AMBIENT_LEVEL = 0x02;
 const static byte REG_GET_MOTION        = 0x03;
 const static byte REG_SET_ESP_ASLEEP    = 0x04;
 
-#define STATUS_LED 0
-#define NUM_LEDS 2
-// milliseconds
-#define RETRIGGER_DELAY 15000
+const static uint8_t STATUS_LED = 0;
+// APA102 LEDs
+const static uint8_t NUM_LEDS = 2;
+
+// the number of seconds of no motion until lantern sleeps
+const static uint8_t MOTION_TIMEOUT_S = 5;
+
+const static byte RTC_FINGERPRINT[] = { 'l', 'n' };
 
 WiFiManager wifiManager;
 Ticker animationTicker;
@@ -53,7 +57,8 @@ uint8_t ambient = 0;
 uint8_t battery = 0;
 bool is_motion = false;
 uint8_t no_motion_since_s = 0;
-const static uint8_t MOTION_TIMEOUT_S = 5;
+
+byte rtc_state[sizeof(RTC_FINGERPRINT) + NUM_LEDS * 3];
 
 DeviceMode device_mode = booting;
 
@@ -139,11 +144,11 @@ bool getMotion() {
   return getPMRegister(REG_GET_MOTION);
 }
 
-byte rtc_state[NUM_LEDS * 3];
-
 void saveLedState() {
+  memcpy(rtc_state, RTC_FINGERPRINT, sizeof(RTC_FINGERPRINT));
+
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
-    memcpy(&rtc_state[i * 3], leds[i].raw, 3);
+    memcpy(&rtc_state[sizeof(RTC_FINGERPRINT) + i * 3], leds[i].raw, 3);
   }
 
   if (!system_rtc_mem_write(70, rtc_state, sizeof(rtc_state))) {
@@ -153,13 +158,19 @@ void saveLedState() {
 
 void restoreLedsFromState(CRGB* arr) {
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
-    memcpy(arr[i].raw, &rtc_state[i * 3], 3);
+    memcpy(arr[i].raw, &rtc_state[sizeof(RTC_FINGERPRINT) + i * 3], 3);
   }
 }
 
 void restoreLedState() {
   if (!system_rtc_mem_read(70, rtc_state, sizeof(rtc_state))) {
     Serial.println("Could not read LED state from RTC");
+    return;
+  }
+
+  if (memcmp(rtc_state, RTC_FINGERPRINT, sizeof(RTC_FINGERPRINT)) != 0) {
+    Serial.println("RTC memory does not contain fingerprint. Not restoring");
+    return;
   }
 
   restoreLedsFromState(leds);
