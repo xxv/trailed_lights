@@ -29,6 +29,7 @@ const static uint8_t NUM_LEDS = 2;
 
 // the number of seconds of no motion until lantern sleeps
 const static uint8_t DEFAULT_MOTION_TIMEOUT_S = 5;
+const static uint8_t POWERDOWN_BATTERY_LEVEL = 10;
 
 const static byte RTC_FINGERPRINT[] = { 'l', 'n' };
 
@@ -187,6 +188,11 @@ void snapshotLeds() {
     color_fade = 0;
 }
 
+void powerDown() {
+  FastLED.clear(true);
+  beginSleep(0);
+}
+
 void beginSleep(long sleepTimeMs) {
   Serial.println("Sleeping now");
   saveLedState();
@@ -328,6 +334,10 @@ void loop() {
 
     Serial.print("No motion since: ");
     Serial.println(no_motion_since_s);
+
+    if (battery < POWERDOWN_BATTERY_LEVEL) {
+      powerDown();
+    }
   }
 
   if (no_motion_since_s >= motion_timeout_s) {
