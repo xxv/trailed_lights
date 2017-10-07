@@ -27,8 +27,9 @@ const static byte CMD_SLEEP_NOW  = 0x7A;
 // Calibrations
 const static int BATTERY_VAL_LOW  = 312;
 const static int BATTERY_VAL_HIGH = 370;
-const static int AMBIENT_VAL_ON   = 100;
-const static int AMBIENT_VAL_OFF  = 50;
+// Brighter than this and it won't wake the ESP
+const static int AMBIENT_VAL_OFF  = 100;
+const static int AMBIENT_VAL_ON   = 50;
 
 static bool wake_on_rtc = true;
 static bool wake_on_motion = true;
@@ -209,10 +210,11 @@ void loop() {
 
   int ambient = getAmbient();
 
-  if (!is_dark && ambient >= AMBIENT_VAL_ON) {
-    is_dark = true;
-  } else if (is_dark && ambient <= AMBIENT_VAL_OFF) {
+  if (is_dark && ambient >= AMBIENT_VAL_OFF) {
     is_dark = false;
+  } else if (!is_dark && ambient <= AMBIENT_VAL_ON) {
+    is_dark = true;
   }
+
   delay(10);
 }
