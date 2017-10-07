@@ -42,6 +42,7 @@ PubSubClient client(wifi);
 CRGB leds[NUM_LEDS];
 CRGB prev_leds[NUM_LEDS];
 CRGB next_leds[NUM_LEDS];
+CRGB default_leds[NUM_LEDS];
 
 fract8 color_fade = 0;
 
@@ -55,6 +56,7 @@ char lantern_id_sensors[25];
 
 // MQTT-Configurable parameters
 int motion_timeout_s = DEFAULT_MOTION_TIMEOUT_S;
+bool default_color_on_sleep = 0;
 
 // Transient state
 uint8_t ambient = 0;
@@ -207,19 +209,23 @@ void publishSensorStatus() {
     client.publish(lantern_id_sensors, format_str);
 }
 
+long decodeColor(std::string &colorString) {
+  std::string modifiedColor = colorString;
+  modifiedColor.replace(0, 1, "0x");
+  return strtoul(modifiedColor.c_str(), nullptr, 16);
+}
+
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   std::string payload_str ((char *)payload, length);
 
   char* subpath = topic + strlen(lantern_id) + 1;
 
   if (strcmp("color", subpath) == 0) {
-    payload_str.replace(0, 1, "0x");
     snapshotLeds();
-    next_leds[0] = strtoul(payload_str.c_str(), nullptr, 16);
+    next_leds[0] = decodeColor(payload_str);
   } else if (strcmp("white", subpath) == 0) {
-    payload_str.replace(0, 1, "0x");
     snapshotLeds();
-    next_leds[1] = strtoul(payload_str.c_str(), nullptr, 16);
+    next_leds[1] = decodeColor(payload_str);
   } else if (strcmp("sleep", subpath) == 0) {
     long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
     beginSleep(sleepTimeMs);
@@ -227,6 +233,12 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     publishSensorStatus();
   } else if (strcmp("lanterns/motion_timeout", topic) == 0) {
     motion_timeout_s = strtol(payload_str.c_str(), nullptr, 10);
+  } else if (strcmp("lanterns/default_color", topic) == 0) {
+    default_leds[0] = decodeColor(payload_str);
+  } else if (strcmp("lanterns/default_white", topic) == 0) {
+    default_leds[1] = decodeColor(payload_str);
+  } else if (strcmp("lanterns/default_color_on_sleep", topic) == 0) {
+    default_color_on_sleep = strtol(payload_str.c_str(), nullptr, 10);
   }
 }
 
