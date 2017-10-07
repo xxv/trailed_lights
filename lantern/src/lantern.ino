@@ -63,6 +63,7 @@ uint8_t ambient = 0;
 uint8_t battery = 0;
 bool is_motion = false;
 int no_motion_since_s = 0;
+bool is_fading_off_to_sleep = 0;
 
 byte rtc_state[sizeof(RTC_FINGERPRINT) + NUM_LEDS * 3];
 
@@ -193,6 +194,17 @@ void snapshotLeds() {
 void powerDown() {
   FastLED.clear(true);
   beginSleep(0);
+}
+
+void gentleSleep() {
+  if (default_color_on_sleep) {
+    snapshotLeds();
+    next_leds[0] = default_leds[0];
+    next_leds[1] = default_leds[1];
+    is_fading_off_to_sleep = true;
+  } else {
+    beginSleep(0);
+  }
 }
 
 void beginSleep(long sleepTimeMs) {
@@ -352,7 +364,12 @@ void loop() {
     }
   }
 
-  if (no_motion_since_s >= motion_timeout_s) {
-    beginSleep(0);
+  if (is_fading_off_to_sleep) {
+    if (color_fade == 0xff) {
+      is_fading_off_to_sleep = 0;
+      beginSleep(0);
+    }
+  } else if (no_motion_since_s >= motion_timeout_s) {
+    gentleSleep();
   }
 }
