@@ -27,6 +27,8 @@ const static byte CMD_SLEEP_NOW  = 0x7A;
 // Calibrations
 const static int BATTERY_VAL_LOW  = 312;
 const static int BATTERY_VAL_HIGH = 370;
+const static int BATTERY_LEVEL_CRITICAL = 10;
+
 // Brighter than this and it won't wake the ESP
 const static int AMBIENT_VAL_BRIGHT = 100;
 const static int AMBIENT_VAL_DARK   = 50;
@@ -207,6 +209,7 @@ void loop() {
 
     if (is_dark &&
         is_esp_sleeping &&
+        battery > BATTERY_LEVEL_CRITICAL &&
         ((motion_val != last_motion && last_motion)
           || (ext_wake_val  != last_ext_wake  && ext_wake_val)
           || (esp_reset_val != last_esp_reset && esp_reset_val))) {
