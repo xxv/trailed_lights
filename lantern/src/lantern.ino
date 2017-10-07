@@ -217,7 +217,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   Serial.begin(115200);
   Wire.begin();
-  Wire.setClockStretchLimit(10000);
+  Wire.setClockStretchLimit(100000);
   pinMode(STATUS_LED, OUTPUT);
   digitalWrite(STATUS_LED, 1); // LED off
 
