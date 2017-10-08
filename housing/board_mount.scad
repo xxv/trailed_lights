@@ -30,12 +30,16 @@ photo_sensor_h = 2;
 photo_sensor_cut = 0.5;
 photo_sensor_lead_h = 24;
 
-
 $fn = 120;
 smidge = 0.01;
 
-mockup();
-//lid();
+//mockup();
+
+// Set up for printing
+rotate([180,0,0])
+  lid();
+
+////////////////////////////////////////////////////////////
 
 module lid() {
   radius = diameter/2;
