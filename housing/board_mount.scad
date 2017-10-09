@@ -1,27 +1,28 @@
-diameter = 84.4;
+diameter = 85.5;
 height = 2;
 lip_inset = 2;
-lip_pit = 3;
+lip_pit = 3.5;
 lip_height = 1;
 glass_diameter_outer = 81.5;
 
 motion_detector_diameter = 23.3;
+motion_detector_lens_clearance = 1;
 motion_detector_bottom_h = 5;
 motion_detector_pcb = [25.5, 35.7, 1.2];
 motion_detector_pcb_parts = [25, 35, 3];
 
 motion_detector_bracket_w=5;
-motion_detector_bracket_hole=1.8/2;
+motion_detector_bracket_hole=1;
 
 battery = [34, 52, 10];
 battery_z  = motion_detector_bottom_h + motion_detector_pcb[2] + motion_detector_pcb_parts[2] + 1;
 
-feather = [23, 51, 12];
+feather = [23, 50, 12];
 feather_bracket_w = 4;
 feather_bracket_bottom_h = battery_z + battery[2] + 1;
-feather_bracket_hole = 1.8/2;
+feather_bracket_hole = 1;
 feather_bracket_hole_from_edge_a = 2.5;
-feather_bracket_hole_from_edge_b = 2;
+feather_bracket_hole_from_edge_b = 2.1;
 
 photo_sensor_rotation = [0, 0, 0];
 photo_sensor_offset = [0, feather[1]/2, 0];
@@ -29,6 +30,7 @@ photo_sensor_r = 5/2;
 photo_sensor_h = 2;
 photo_sensor_cut = 0.5;
 photo_sensor_lead_h = 24;
+photo_sensor_lead_hole_r = 0.25;
 
 $fn = 120;
 smidge = 0.01;
@@ -49,7 +51,7 @@ module lid() {
       cylinder(r=radius, h=height);
 
     // motion sensor bracket
-    motion_detector_bracket_offset = motion_detector_diameter/2 + 0.5;
+    motion_detector_bracket_offset = motion_detector_diameter/2 + motion_detector_lens_clearance;
     for(r = [0 : 180 : 180])
       rotate([0, 0, r]) {
         translate([-motion_detector_pcb[0]/2, motion_detector_bracket_offset, -motion_detector_bottom_h])
@@ -188,7 +190,7 @@ module photo_resistor() {
   height = 2;
   cut_cylinder(r=photo_sensor_r, h=photo_sensor_h, cut=photo_sensor_cut);
   translate([-2.7/2, 0, -photo_sensor_lead_h])
-  cylinder(r=0.25, h=photo_sensor_lead_h);
+  cylinder(r=photo_sensor_lead_hole_r, h=photo_sensor_lead_h);
   translate([2.7/2, 0, -photo_sensor_lead_h])
-  cylinder(r=0.25, h=photo_sensor_lead_h);
+  cylinder(r=photo_sensor_lead_hole_r, h=photo_sensor_lead_h);
   }
