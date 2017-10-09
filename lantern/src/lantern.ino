@@ -82,8 +82,6 @@ void configModeCallback(WiFiManager *myWiFiManager) {
  */
 bool setPMRegister(uint8_t reg, uint8_t value) {
   uint8_t buff[2];
-  Serial.print("Setting power manager register ");
-  Serial.println(reg);
 
   Wire.beginTransmission(POWER_MANAGER_ADDR);
   buff[0] = reg;
@@ -105,9 +103,6 @@ bool setPMRegister(uint8_t reg, uint8_t value) {
  * Retrieve the given power manager register value.
  */
 uint8_t getPMRegister(uint8_t reg) {
-  Serial.print("Requesting power manager register ");
-  Serial.println(reg);
-
   Wire.beginTransmission(POWER_MANAGER_ADDR);
   Wire.write(reg);
   int result = Wire.endTransmission();
@@ -120,19 +115,11 @@ uint8_t getPMRegister(uint8_t reg) {
   }
 
   uint8_t gotBytes = Wire.requestFrom(POWER_MANAGER_ADDR, (uint8_t)1);
-  Serial.print("Received: ");
-  Serial.println(gotBytes);
   uint8_t value;
 
   while(Wire.available()) {
     value = Wire.read();
-    Serial.print(value);
-    Serial.print(", ");
   }
-  Serial.println();
-
-  Serial.print("Last byte: ");
-  Serial.println(value);
 
   Wire.endTransmission();
 
@@ -350,6 +337,7 @@ void loop() {
     ambient = getAmbient();
     battery = getBattery();
     is_motion = getMotion();
+    Serial.printf("Ambient: %d, battery: %d, motion: %d\n", ambient, battery, is_motion);
 
     if (is_motion) {
       no_motion_since_s = 0;
