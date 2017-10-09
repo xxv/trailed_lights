@@ -28,7 +28,7 @@ const static uint8_t STATUS_LED = 0;
 const static uint8_t NUM_LEDS = 2;
 
 // the number of seconds of no motion until lantern sleeps
-const static uint8_t DEFAULT_MOTION_TIMEOUT_S = 5;
+const static uint8_t DEFAULT_MOTION_TIMEOUT_S = 15;
 const static uint8_t POWERDOWN_BATTERY_LEVEL = 10;
 
 const static byte RTC_FINGERPRINT[] = { 'l', 'n' };
@@ -311,9 +311,10 @@ void reconnect() {
     if (connected) {
       digitalWrite(STATUS_LED, 1);
       // Once connected, publish an announcement...
-      client.publish(lantern_id_status, "online", 1);
       client.subscribe(lantern_id_all);
       client.subscribe("lanterns/#");
+
+      client.publish(lantern_id_status, "online", 1);
       client.publish(lantern_id_motion, "");
     } else {
       digitalWrite(STATUS_LED, 0);
