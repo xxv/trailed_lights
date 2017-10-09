@@ -159,7 +159,7 @@ void onRequest() {
   } else if (current_register == REG_GET_AMBIENT_LEVEL) {
     Wire.write(scaleAnalogReadToByte(ambient));
   } else if (current_register == REG_GET_MOTION) {
-    Wire.write(last_motion);
+    Wire.write(!last_motion);
   }
 
   current_register = 0;
