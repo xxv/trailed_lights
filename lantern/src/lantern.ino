@@ -219,18 +219,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   char* subpath = topic + strlen(lantern_id) + 1;
 
-  if (strcmp("color", subpath) == 0) {
-    snapshotLeds();
-    next_leds[0] = decodeColor(payload_str);
-  } else if (strcmp("white", subpath) == 0) {
-    snapshotLeds();
-    next_leds[1] = decodeColor(payload_str);
-  } else if (strcmp("sleep", subpath) == 0) {
-    long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
-    beginSleep(sleepTimeMs);
-  } else if (strcmp("status_query", subpath) == 0) {
-    publishSensorStatus();
-  } else if (strcmp("lanterns/motion_timeout", topic) == 0) {
+  if (strcmp("lanterns/motion_timeout", topic) == 0) {
     motion_timeout_s = strtol(payload_str.c_str(), nullptr, 10);
   } else if (strcmp("lanterns/default_color", topic) == 0) {
     default_leds[0] = decodeColor(payload_str);
@@ -238,6 +227,23 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     default_leds[1] = decodeColor(payload_str);
   } else if (strcmp("lanterns/default_color_on_sleep", topic) == 0) {
     default_color_on_sleep = strtol(payload_str.c_str(), nullptr, 10);
+  } else if (strcmp("color", subpath) == 0) {
+    snapshotLeds();
+    next_leds[0] = decodeColor(payload_str);
+  } else if (strcmp("white", subpath) == 0) {
+    snapshotLeds();
+    next_leds[1] = decodeColor(payload_str);
+  } else if (strcmp("lanterns/color", topic) == 0) {
+    snapshotLeds();
+    next_leds[0] = decodeColor(payload_str);
+  } else if (strcmp("lanterns/white", topic) == 0) {
+    snapshotLeds();
+    next_leds[1] = decodeColor(payload_str);
+  } else if (strcmp("sleep", subpath) == 0) {
+    long sleepTimeMs = strtoul(payload_str.c_str(), nullptr, 10);
+    beginSleep(sleepTimeMs);
+  } else if (strcmp("status_query", subpath) == 0) {
+    publishSensorStatus();
   }
 }
 
