@@ -359,6 +359,10 @@ void loop() {
     }
   }
 
+  EVERY_N_SECONDS(5) {
+    publishSensorStatus();
+  }
+
   if (is_fading_off_to_sleep) {
     if (color_fade == 0xff) {
       is_fading_off_to_sleep = 0;
