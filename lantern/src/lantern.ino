@@ -36,7 +36,12 @@ const static byte RTC_FINGERPRINT[] = { 'l', 'n' };
 WiFiManager wifiManager;
 Ticker animationTicker;
 
+#ifdef LANTERN_USE_SSL
 WiFiClientSecure wifi;
+#else
+WiFiClient wifi;
+#endif
+
 PubSubClient client(wifi);
 
 CRGB leds[NUM_LEDS];
