@@ -222,16 +222,22 @@ long decodeColor(std::string &colorString) {
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   std::string payload_str ((char *)payload, length);
 
+  Serial.print("Got message at topic: ");
+  Serial.println(topic);
   char* subpath = topic + strlen(lantern_id) + 1;
 
   if (strcmp("lanterns/motion_timeout", topic) == 0) {
     motion_timeout_s = strtol(payload_str.c_str(), nullptr, 10);
+    Serial.printf("Setting motion timeout to: %d\n", motion_timeout_s);
   } else if (strcmp("lanterns/default_color", topic) == 0) {
+    Serial.println("Setting default color");
     default_leds[0] = decodeColor(payload_str);
   } else if (strcmp("lanterns/default_white", topic) == 0) {
+    Serial.println("Setting default white");
     default_leds[1] = decodeColor(payload_str);
   } else if (strcmp("lanterns/default_color_on_sleep", topic) == 0) {
     default_color_on_sleep = strtol(payload_str.c_str(), nullptr, 10);
+    Serial.printf("Setting default color on sleep to: %d\n", default_color_on_sleep);
   } else if (strcmp("color", subpath) == 0) {
     snapshotLeds();
     next_leds[0] = decodeColor(payload_str);
