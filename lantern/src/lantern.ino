@@ -30,6 +30,7 @@ const static uint8_t NUM_LEDS = 2;
 // the number of seconds of no motion until lantern sleeps
 const static uint8_t DEFAULT_MOTION_TIMEOUT_S = 15;
 const static uint8_t POWERDOWN_BATTERY_LEVEL = 10;
+const static int AMBIENT_LIGHT_OFF_LEVEL = 90;
 
 const static byte RTC_FINGERPRINT[] = { 'l', 'n' };
 
@@ -68,6 +69,7 @@ uint8_t ambient = 0;
 uint8_t battery = 0;
 bool is_motion = false;
 int no_motion_since_s = 0;
+int ambient_bright_since_s = 0;
 bool is_fading_off_to_sleep = 0;
 
 byte rtc_state[sizeof(RTC_FINGERPRINT) + NUM_LEDS * 3];
@@ -184,6 +186,7 @@ void snapshotLeds() {
 }
 
 void powerDown() {
+  Serial.println("Powering down");
   FastLED.clear(true);
   beginSleep(0);
 }
@@ -362,6 +365,12 @@ void loop() {
       no_motion_since_s++;
     }
 
+    if (ambient >= AMBIENT_LIGHT_OFF_LEVEL) {
+      ambient_bright_since_s++;
+    } else {
+      ambient_bright_since_s = 0;
+    }
+
     Serial.print("No motion since: ");
     Serial.println(no_motion_since_s);
 
@@ -380,6 +389,11 @@ void loop() {
       beginSleep(0);
     }
   } else if (no_motion_since_s >= motion_timeout_s) {
-    gentleSleep();
+    if (ambient_bright_since_s < 10) {
+      gentleSleep();
+    } else {
+      Serial.println("It's too bright.");
+      powerDown();
+    }
   }
 }
